@@ -1,5 +1,6 @@
 "use client";
 
+import { ReactElement } from "react";
 import { CartItem as CartItemType } from "../context/CartContext";
 import { useCart } from "../context/CartContext";
 
@@ -9,7 +10,7 @@ interface CartItemProps {
 
 // Product icon based on product name (same as ProductCard)
 function ProductIcon({ name }: { name: string }) {
-  const iconMap: { [key: string]: JSX.Element } = {
+  const iconMap: { [key: string]: ReactElement } = {
     hoodie: (
       <svg viewBox="0 0 64 64" className="w-10 h-10 text-[#0052ff]" fill="none" stroke="currentColor" strokeWidth="1.5">
         <path d="M20 16c0-4 5.4-8 12-8s12 4 12 8" strokeLinecap="round"/>
