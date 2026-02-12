@@ -1,0 +1,86 @@
+# =============================================================================
+# Vercel Preview Deployment Workflow
+# =============================================================================
+# Este workflow despliega automáticamente la branch cleanup/prepare-for-deployment
+# en Vercel como preview deployment cada vez que se hace push.
+#
+# CONFIGURACIÓN REQUERIDA:
+# Antes de usar este workflow, configura los siguientes secrets en GitHub:
+# 1. Ve a Settings > Secrets and variables > Actions
+# 2. Agrega los siguientes secrets:
+#    - VERCEL_TOKEN: Token de API de Vercel (https://vercel.com/account/tokens)
+#    - VERCEL_ORG_ID: ID de tu organización/cuenta en Vercel
+#    - VERCEL_PROJECT_ID: ID del proyecto en Vercel
+#
+# Para obtener VERCEL_ORG_ID y VERCEL_PROJECT_ID:
+# 1. Instala Vercel CLI: npm i -g vercel
+# 2. Ejecuta: vercel link
+# 3. Los IDs estarán en .vercel/project.json
+# =============================================================================
+
+name: Deploy Preview to Vercel
+
+on:
+  push:
+    branches:
+      - cleanup/prepare-for-deployment
+  # También permite ejecutar manualmente desde GitHub Actions
+  workflow_dispatch:
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+  deploy-preview:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout del código
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Instalar Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # Instalar dependencias
+      - name: Install dependencies
+        run: npm ci
+
+      # Instalar Vercel CLI
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      # Pull configuración de Vercel
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+
+      # Build del proyecto
+      - name: Build Project
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+
+      # Deploy a Vercel como preview
+      - name: Deploy to Vercel (Preview)
+        id: deploy
+        run: |
+          url=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+          echo "DEPLOYMENT_URL=$url" >> $GITHUB_OUTPUT
+          echo "### Preview Deployment URL 🚀" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "[$url]($url)" >> $GITHUB_STEP_SUMMARY
+
+      # Comentar en el commit con la URL del deployment
+      - name: Comment Deployment URL
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const deploymentUrl = '${{ steps.deploy.outputs.DEPLOYMENT_URL }}';
+            github.rest.repos.createCommitComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: context.sha,
+              body: `🚀 **Preview Deployment Ready!**\n\n${deploymentUrl}`
+            });

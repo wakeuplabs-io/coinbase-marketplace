@@ -1,0 +1,427 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #0a0b0d;
+  --muted: #5b616e;
+  --accent: #0052ff;
+  --border: #e2e4e9;
+  --card-bg: #f9fafb;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-border: var(--border);
+  --color-card-bg: var(--card-bg);
+  --font-sans: var(--font-inter);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+/* Focus ring styles for accessibility */
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* 1. Fade-in + slide-up animation */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  opacity: 0;
+  animation: fade-in-up 0.6s ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in-up {
+    opacity: 1;
+    animation: none;
+    transform: none;
+  }
+}
+
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+
+/* 2. Arrow animation on hover */
+.group:hover .arrow-animate {
+  transform: translateX(4px);
+}
+
+.arrow-animate {
+  transition: transform 0.2s ease-out;
+}
+
+/* 4. QR card hover glow */
+.qr-card {
+  transition: box-shadow 0.3s ease;
+}
+
+.qr-card:hover {
+  box-shadow: 0 0 30px rgba(0, 82, 255, 0.15);
+}
+
+/* 5. Instantly shimmer effect - plays automatically (no hover needed for mobile) */
+@keyframes instantly-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  50% {
+    background-position: 0% 0;
+  }
+  100% {
+    background-position: 100% 0;
+  }
+}
+
+.instantly-shimmer {
+  color: #0052ff;
+  background: linear-gradient(
+    90deg,
+    #0052ff 0%,
+    #0052ff 35%,
+    #ffffff 50%,
+    #0052ff 65%,
+    #0052ff 100%
+  );
+  background-size: 300% 100%;
+  background-position: 100% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  cursor: default;
+  animation: instantly-shimmer 3s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .instantly-shimmer {
+    animation: none;
+    background-position: 0% 0;
+  }
+}
+
+/* 6. Cart drawer shadow */
+.cart-drawer {
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* 7. Carousel card shadows */
+.carousel-card-active {
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* 8. Slide up animation for drawer */
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out forwards;
+}
+
+/* 9. Fade backdrop animation */
+@keyframes fade-backdrop {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-backdrop {
+  animation: fade-backdrop 0.3s ease-out forwards;
+}
+
+/* 10. Scale bounce for add to cart */
+@keyframes scale-bounce {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-scale-bounce {
+  animation: scale-bounce 0.3s ease-out;
+}
+
+/* 11. Toast animation - from right */
+@keyframes toast-in {
+  0% {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-toast-in {
+  animation: toast-in 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* 12. Flying to cart animation */
+@keyframes fly-to-cart {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(calc(50vw - 100%), 20vh) scale(0.8);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(50vw - 100%), 60vh) scale(0.3);
+  }
+}
+
+.animate-fly-to-cart {
+  animation: fly-to-cart 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* 13. Noise texture + gradient background */
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.animated-gradient-bg {
+  background: linear-gradient(
+    135deg,
+    #ffffff 0%,
+    #f8faff 25%,
+    #f0f4ff 50%,
+    #f8faff 75%,
+    #ffffff 100%
+  );
+  background-size: 400% 400%;
+  animation: gradient-shift 20s ease infinite;
+  position: relative;
+}
+
+.animated-gradient-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.animated-gradient-bg > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* 14. Floating orbs for extra visual interest */
+@keyframes float-orb {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.3;
+  }
+  33% {
+    transform: translate(30px, -40px) scale(1.1);
+    opacity: 0.5;
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+    opacity: 0.4;
+  }
+}
+
+.floating-orb {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 82, 255, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+  animation: float-orb 25s ease-in-out infinite;
+}
+
+.floating-orb-1 {
+  width: 300px;
+  height: 300px;
+  top: 10%;
+  left: 10%;
+  animation-delay: 0s;
+}
+
+.floating-orb-2 {
+  width: 200px;
+  height: 200px;
+  top: 60%;
+  right: 15%;
+  animation-delay: -8s;
+}
+
+.floating-orb-3 {
+  width: 250px;
+  height: 250px;
+  bottom: 20%;
+  left: 20%;
+  animation-delay: -16s;
+}
+
+/* 15. Line clamp utility */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 16. Mobile-first touch optimizations */
+@media (max-width: 1023px) {
+  /* Ensure minimum tap target size (44x44px for accessibility) */
+  button,
+  a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* Prevent text selection on touch devices for better UX */
+  button,
+  a,
+  .no-select {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Smooth scroll for mobile navigation */
+  html {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Remove hover effects on touch devices */
+  @media (hover: none) {
+    .hover\:scale-\[1\.02\]:hover {
+      transform: scale(1);
+    }
+  }
+}
+
+/* 17. Improved mobile spacing and readability */
+@media (max-width: 639px) {
+  /* Better text rendering on mobile */
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Prevent horizontal overflow on small screens */
+  body {
+    overflow-x: hidden;
+  }
+
+  /* Optimize focus states for mobile */
+  *:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+/* 18. CTA pulsing border animation */
+@keyframes pulse-border {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(0, 82, 255, 0.4),
+                0 10px 30px rgba(0, 82, 255, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(0, 82, 255, 0),
+                0 10px 40px rgba(0, 82, 255, 0.3);
+  }
+}
+
+.animate-pulse-border {
+  animation: pulse-border 2.5s ease-in-out infinite;
+}
+
+/* Combined: fade-in-up then pulse-border (for elements that need both) */
+.animate-fade-in-up-with-pulse {
+  opacity: 0;
+  animation:
+    fade-in-up 0.6s ease-out 0.1s forwards,
+    pulse-border 2.5s ease-in-out 0.7s infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in-up-with-pulse {
+    opacity: 1;
+    animation: none;
+  }
+}
+
+/* 19. Enhanced button press effect */
+@media (max-width: 1023px) {
+  .touch-manipulation:active {
+    transform: scale(0.97);
+    transition: transform 0.1s ease-out;
+  }
+
+  /* 20. Floating animation for mobile only */
+  @keyframes float-mobile {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
+  .animate-float-mobile {
+    animation: float-mobile 3s ease-in-out infinite;
+  }
+
+  /* 21. CTA card gentle sway for mobile */
+  @keyframes sway-mobile {
+    0%, 100% {
+      transform: translateX(0px) rotate(0deg);
+    }
+    25% {
+      transform: translateX(2px) rotate(0.5deg);
+    }
+    75% {
+      transform: translateX(-2px) rotate(-0.5deg);
+    }
+  }
+
+  .animate-sway-mobile {
+    animation: sway-mobile 4s ease-in-out infinite;
+  }
+}
