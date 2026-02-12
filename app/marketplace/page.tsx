@@ -10,12 +10,13 @@ import { useCart } from "../context/CartContext";
 function CoinbaseLogo() {
   return (
     <svg
-      width="28"
-      height="28"
+      width="24"
+      height="24"
       viewBox="0 0 1024 1024"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
+      className="sm:w-7 sm:h-7"
     >
       <rect width="1024" height="1024" rx="512" fill="#0052FF" />
       <path
@@ -32,8 +33,8 @@ function CoinbaseLogo() {
 function BackArrowIcon() {
   return (
     <svg
-      width="20"
-      height="20"
+      width="18"
+      height="18"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -41,6 +42,7 @@ function BackArrowIcon() {
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
+      className="sm:w-5 sm:h-5"
     >
       <path d="M19 12H5M12 19l-7-7 7-7" />
     </svg>
@@ -68,27 +70,34 @@ export default function MarketplacePage() {
 
           {/* Header - Fixed at top */}
           <header className="fixed top-0 left-0 right-0 z-50 w-full border-b border-[#e2e4e9] bg-white/80 backdrop-blur-sm">
-            <nav className="max-w-6xl mx-auto px-5 md:px-8 h-16 flex items-center justify-between">
+            <nav className="max-w-6xl mx-auto px-4 sm:px-5 md:px-8 h-14 sm:h-16 flex items-center justify-between gap-2">
               <button
                 onClick={() => router.push("/")}
-                className="flex items-center gap-2.5 text-sm font-semibold text-[#0a0b0d] hover:opacity-80 transition-opacity"
+                className="flex items-center gap-1.5 sm:gap-2.5 text-xs sm:text-sm font-semibold text-[#0a0b0d] hover:opacity-80 transition-opacity min-w-0"
                 aria-label="Back to home"
               >
                 <BackArrowIcon />
-                <CoinbaseLogo />
-                <span className="tracking-tight">Coinbase Marketplace</span>
+                <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0">
+                  <CoinbaseLogo />
+                  <span className="tracking-tight hidden xs:inline truncate">Coinbase Marketplace</span>
+                  <span className="tracking-tight xs:hidden truncate">Marketplace</span>
+                </div>
               </button>
-              {/* Demo Badge */}
-              <span className="px-2.5 py-1 text-xs font-medium bg-[#0052ff]/10 text-[#0052ff] rounded-full">
-                Demo
-              </span>
+              <button
+                type="button"
+                className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-[#0052ff] border border-[#0052ff]/20 rounded-xl hover:bg-[#0052ff]/5 transition-all hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap flex-shrink-0"
+                aria-label="Connect your crypto wallet"
+              >
+                <span className="hidden xs:inline">Connect Wallet</span>
+                <span className="xs:hidden">Connect</span>
+              </button>
             </nav>
           </header>
 
           {/* Main Content */}
           <main
             id="main-content"
-            className="flex-1 flex flex-col pt-16"
+            className="flex-1 flex flex-col pt-14 sm:pt-16"
           >
             {/* Product Carousel - Upper section */}
             <section 
@@ -101,7 +110,7 @@ export default function MarketplacePage() {
               </div>
 
               {/* Swipe hint - Mobile only */}
-              <p className="md:hidden text-xs text-[#4a5568] text-center animate-fade-in-up delay-200">
+              <p className="md:hidden text-[11px] sm:text-xs text-[#4a5568] text-center animate-fade-in-up delay-200 mt-1">
                 Swipe to browse products
               </p>
             </section>
@@ -114,11 +123,11 @@ export default function MarketplacePage() {
 
           {/* Footer - Same as main site */}
           <footer className="w-full border-t border-[#e2e4e9] mt-auto bg-white/80 backdrop-blur-sm">
-            <div className="max-w-6xl mx-auto px-5 md:px-8 h-14 flex items-center justify-between">
-              <p className="text-xs text-[#4a5568]">
+            <div className="max-w-6xl mx-auto px-4 sm:px-5 md:px-8 py-3 sm:py-0 sm:h-14 flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-0">
+              <p className="text-[10px] sm:text-xs text-[#4a5568] text-center sm:text-left">
                 Powered by Coinbase Payments APIs
               </p>
-              <div className="hidden sm:flex items-center gap-4 text-xs">
+              <div className="flex items-center gap-3 sm:gap-4 text-[10px] sm:text-xs">
                 <a
                   href="https://docs.cdp.coinbase.com"
                   target="_blank"

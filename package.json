@@ -7,7 +7,9 @@
     "dev:tunnel": "ngrok http 3000",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "deploy:preview": "vercel",
+    "deploy:production": "vercel --prod"
   },
   "dependencies": {
     "next": "16.1.6",

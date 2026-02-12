@@ -480,6 +480,9 @@ function CheckoutContent() {
                 >
                   Pay now
                 </button>
+                <p className="mt-1.5 text-xs text-[#4a5568] text-center">
+                  Remember to pay with the previously connected wallet.
+                </p>
               </form>
             </div>
 

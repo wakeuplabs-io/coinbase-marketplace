@@ -287,15 +287,15 @@ export default function ProductCarousel({ products }: ProductCarouselProps) {
       </button>
 
       {/* Pagination dots */}
-      <div className="flex justify-center gap-2 mt-4" role="tablist" aria-label="Carousel navigation">
+      <div className="flex justify-center gap-1.5 sm:gap-2 mt-4" role="tablist" aria-label="Carousel navigation">
         {products.map((product, index) => (
           <button
             key={product.id}
             onClick={() => handleIndexChange(index)}
-            className={`w-2 h-2 rounded-full transition-all duration-300 ${
+            className={`rounded-full transition-all duration-300 ${
               index === activeIndex
-                ? "bg-[#0052ff] w-6"
-                : "bg-[#e2e4e9] hover:bg-[#c8ccd4]"
+                ? "bg-[#0052ff] w-4 sm:w-6 h-1.5 sm:h-2"
+                : "bg-[#e2e4e9] hover:bg-[#c8ccd4] w-1.5 sm:w-2 h-1.5 sm:h-2"
             }`}
             role="tab"
             aria-selected={index === activeIndex}
