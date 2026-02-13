@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useCart } from "../context/CartContext";
 import CartItem from "./CartItem";
 import { useRouter } from "next/navigation";
+import { formatPrice } from "../lib/utils";
 
 // Empty cart illustration with sad face only
 function EmptyCartIcon() {
@@ -72,12 +73,6 @@ export default function CartSection() {
     return () => window.removeEventListener("resize", checkDesktop);
   }, [setIsCartOpen]);
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(price);
-  };
 
   // Handle drag start
   const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
@@ -181,7 +176,7 @@ export default function CartSection() {
         }}
       >
         {/* Header */}
-        <div className="flex-shrink-0 px-5 pb-3 border-b border-[#e2e4e9]">
+        <div className="shrink-0 px-5 pb-3 border-b border-[#e2e4e9]">
           <div className="flex items-center justify-center gap-2">
             <h2 className="text-lg font-semibold text-[#0a0b0d]">Your Cart</h2>
             {itemCount > 0 && (
@@ -211,7 +206,7 @@ export default function CartSection() {
 
         {/* Footer - Always visible when items exist */}
         {items.length > 0 && (
-          <div className="flex-shrink-0 px-5 py-4 border-t border-[#e2e4e9] bg-white">
+          <div className="shrink-0 px-5 py-4 border-t border-[#e2e4e9] bg-white">
             <div className="flex items-center justify-between gap-3">
               <span className="text-sm text-[#4a5568]">Total:</span>
               <span className="text-lg font-semibold text-[#0a0b0d]">
@@ -219,7 +214,7 @@ export default function CartSection() {
               </span>
               <button
                 onClick={() => router.push("/checkout")}
-                className="px-6 py-3 bg-[#0a0b0d] text-white rounded-xl text-sm font-semibold hover:bg-[#1a1b1d] transition-all hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap flex-shrink-0 ml-auto"
+                className="px-6 py-3 bg-[#0a0b0d] text-white rounded-xl text-sm font-semibold hover:bg-[#1a1b1d] transition-all hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap shrink-0 ml-auto"
                 aria-label="Buy items"
               >
                 Buy
