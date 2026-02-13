@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { CreatePaymentLinkResult } from '../api/infra/coinbase/payment-service';
 
 interface PaymentLink {
   id: string;
@@ -22,7 +23,7 @@ export interface CreatePaymentParams {
 }
 
 export interface UsePaymentReturn {
-  paymentData: PaymentResponse | null;
+  payment: PaymentLink | null;
   isLoading: boolean;
   error: string | null;
   createPayment: (params: CreatePaymentParams) => Promise<PaymentResponse>;
@@ -30,7 +31,7 @@ export interface UsePaymentReturn {
 }
 
 export function usePayment(): UsePaymentReturn {
-  const [paymentData, setPaymentData] = useState<PaymentResponse | null>(null);
+  const [paymentData, setPaymentData] = useState<CreatePaymentLinkResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -56,10 +57,6 @@ export function usePayment(): UsePaymentReturn {
         const result = await response.json();
         console.log('result', result);
 
-        if (!result.link) {
-          throw new Error('Payment link not found in response');
-        }
-
         setPaymentData(result);
         return result;
       } catch (err) {
@@ -84,7 +81,7 @@ export function usePayment(): UsePaymentReturn {
   }, []);
 
   return {
-    paymentData,
+    payment: paymentData?.payment ?? null,
     isLoading,
     error,
     createPayment,

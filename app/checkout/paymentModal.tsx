@@ -36,20 +36,19 @@ interface CoinbasePaymentElement extends HTMLElement {
 }
 
 interface PaymentResponse {
-  link: PaymentLink;
-  [key: string]: unknown;
+  payment: PaymentLink;
 }
 
 interface PaymentModalProps {
   isOpen: boolean;
-  paymentData: PaymentResponse | null;
+  payment: PaymentLink | null;
   onClose: () => void;
   onError?: (error: string) => void;
 }
 
 export default function PaymentModal({
   isOpen,
-  paymentData,
+  payment,
   onClose,
   onError,
 }: PaymentModalProps) {
@@ -58,13 +57,14 @@ export default function PaymentModal({
 
   // Render payment component when payment data is available
   useEffect(() => {
-    if (isOpen && paymentData && paymentComponentRef.current) {
+    if (isOpen && payment && paymentComponentRef.current) {
       const component = paymentComponentRef.current;
       if (component && typeof component.render === 'function') {
-        component.render({ payment: paymentData.link });
+        console.log('payment', payment);
+        component.render({ payment });
       }
     }
-  }, [isOpen, paymentData]);
+  }, [isOpen, payment]);
 
   // Handle payment component events
   useEffect(() => {
@@ -132,6 +132,7 @@ export default function PaymentModal({
         ref={paymentComponentRef}
         id="payment-link"
         layout="single-column"
+        payment={payment}
       />
     </>
   );

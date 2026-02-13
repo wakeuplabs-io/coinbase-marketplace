@@ -51,7 +51,7 @@ function CheckoutContent() {
   const [showPaymentComponent, setShowPaymentComponent] = useState(false);
   const [modalError, setModalError] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
-  const { paymentData, isLoading, error, createPayment, reset } = usePayment();
+  const { payment, isLoading, error, createPayment, reset } = usePayment();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -359,7 +359,7 @@ function CheckoutContent() {
       {/* Payment Modal */}
       <PaymentModal
         isOpen={showPaymentComponent}
-        paymentData={paymentData}
+        payment={payment}
         onClose={handleCloseModal}
         onError={handleModalError}
       />

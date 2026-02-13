@@ -33,7 +33,7 @@ export interface PaymentLink {
 }
 
 export interface CreatePaymentLinkResult {
-  link: PaymentLink;
+  payment: PaymentLink;
 }
 
 export class PaymentService extends CoinbaseClient {
@@ -43,13 +43,12 @@ export class PaymentService extends CoinbaseClient {
 
   async createPaymentLink(params: CreatePaymentLinkParams): Promise<CreatePaymentLinkResult> {
     try {
-      const response = await super.makeRequest<{ payment: CreatePaymentLinkResult }>('POST',
+      const response = await super.makeRequest<CreatePaymentLinkResult>('POST',
         '/api/v1/payments',
         params
       );
 
-      console.log('response', response);
-      return response.payment;
+      return response;
     } catch (error) {
       throw new Error(
         `Failed to create payment link: ${error instanceof Error ? error.message : 'Unknown error'}`
