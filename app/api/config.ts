@@ -26,9 +26,19 @@ export function getEnv(): Env {
 
   const result = envSchema.safeParse(process.env);
   if (!result.success) {
+    const fieldErrors = result.error.flatten().fieldErrors;
+    const missingVars = (Object.keys(fieldErrors) as Array<keyof typeof fieldErrors>).filter(
+      key => fieldErrors[key] !== undefined
+    );
+    
     console.error("❌ Invalid environment variables:");
-    console.error(JSON.stringify(result.error.flatten().fieldErrors, null, 2));
-    throw new Error("Invalid environment variables. Check Amplify env vars.");
+    console.error(JSON.stringify(fieldErrors, null, 2));
+    
+    // Build a helpful error message
+    const missingList = missingVars.map(varName => `  - ${varName}`).join("\n");
+    const errorMessage = `Invalid environment variables. Missing or invalid variables:\n${missingList}\n\nTo fix this in AWS Amplify:\n1. Go to AWS Amplify Console → Your App → App settings → Environment variables\n2. Add the missing variables listed above\n3. Redeploy your application\n\nFor more details, see the README.md file.`;
+    
+    throw new Error(errorMessage);
   }
   return result.data;
 }
