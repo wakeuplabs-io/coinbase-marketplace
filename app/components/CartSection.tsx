@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -5,6 +6,7 @@ import { useCart } from "../context/CartContext";
 import CartItem from "./CartItem";
 import { useRouter } from "next/navigation";
 import { formatPrice } from "../lib/utils";
+import { useWallet } from "../hooks/useWallet";
 
 // Empty cart illustration with sad face only
 function EmptyCartIcon() {
@@ -17,7 +19,8 @@ function EmptyCartIcon() {
 }
 
 export default function CartSection() {
-  const { items, itemCount, subtotal, isCartOpen, setIsCartOpen } = useCart();
+  const { items, itemCount, subtotal, isCartOpen, setIsCartOpen, hasInsufficientFunds } = useCart();
+  const { usdcBalance, isConnected, isLoadingBalance } = useWallet();
   const router = useRouter();
   const [isDragging, setIsDragging] = useState(false);
   const [dragStartY, setDragStartY] = useState(0);
@@ -26,6 +29,9 @@ export default function CartSection() {
   const contentRef = useRef<HTMLDivElement>(null);
   const [contentHeight, setContentHeight] = useState(0);
   const prevItemCountRef = useRef(itemCount);
+
+  // Check if user has insufficient funds
+  const insufficientFunds = isConnected && !isLoadingBalance && hasInsufficientFunds(usdcBalance);
 
   // Auto-open cart when an item is added
   useEffect(() => {
@@ -132,7 +138,7 @@ export default function CartSection() {
         document.removeEventListener("touchend", handleDragEnd);
       };
     }
-  }, [isDragging, dragStartY, dragOffset, isCartOpen, setIsCartOpen]);
+  }, [isDragging, dragStartY, dragOffset, isCartOpen, setIsCartOpen, handleDragMove, handleDragEnd]);
 
   return (
     <section
@@ -206,7 +212,22 @@ export default function CartSection() {
 
         {/* Footer - Always visible when items exist */}
         {items.length > 0 && (
-          <div className="shrink-0 px-5 py-4 border-t border-[#e2e4e9] bg-white">
+          <div className="shrink-0 px-5 py-4 border-t border-[#e2e4e9] bg-white space-y-3">
+            {/* Insufficient funds error */}
+            {insufficientFunds && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-600 font-medium">
+                  Insufficient funds
+                </p>
+                <p className="text-xs text-red-500 mt-1">
+                  You need {formatPrice(subtotal - usdcBalance)} more to complete this purchase.
+                </p>
+                <p className="text-xs text-red-500 mt-1">
+                  Your balance: {formatPrice(usdcBalance)} | Total: {formatPrice(subtotal)}
+                </p>
+              </div>
+            )}
+            
             <div className="flex items-center justify-between gap-3">
               <span className="text-sm text-[#4a5568]">Total:</span>
               <span className="text-lg font-semibold text-[#0a0b0d]">
@@ -214,7 +235,8 @@ export default function CartSection() {
               </span>
               <button
                 onClick={() => router.push("/checkout")}
-                className="px-6 py-3 bg-[#0a0b0d] text-white rounded-xl text-sm font-semibold hover:bg-[#1a1b1d] transition-all hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap shrink-0 ml-auto"
+                disabled={insufficientFunds}
+                className="px-6 py-3 bg-[#0a0b0d] text-white rounded-xl text-sm font-semibold hover:bg-[#1a1b1d] transition-all hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap shrink-0 ml-auto disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                 aria-label="Buy items"
               >
                 Buy

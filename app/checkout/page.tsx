@@ -1,7 +1,10 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
 import { useCart } from "@/app/context/CartContext";
 
@@ -14,10 +17,24 @@ import {
 } from "@/app/components/PaymentIcons";
 
 import { usePayment } from "@/app/hooks/usePayment";
+import { useWallet } from "@/app/hooks/useWallet";
 
 import { formatPrice } from "@/app/lib/utils";
 
 import PaymentModal from "./paymentModal";
+
+const checkoutFormSchema = z.object({
+  "full-name": z.string().min(1, "Full name is required"),
+  email: z.string().min(1, "Email is required").email("Please enter a valid email address"),
+  country: z.string().min(1, "Country is required"),
+  address: z.string().min(1, "Address is required"),
+  apartment: z.string().optional(),
+  city: z.string().min(1, "City is required"),
+  state: z.string().min(1, "State is required"),
+  zip: z.string().min(1, "ZIP code is required"),
+});
+
+type CheckoutFormData = z.infer<typeof checkoutFormSchema>;
 
 function PlaceholderThumbnail({
   productName,
@@ -45,37 +62,48 @@ function PlaceholderThumbnail({
 type PaymentMethod = "credit" | "shop" | "crypto";
 
 function CheckoutContent() {
-  const { items, subtotal } = useCart();
+  const { items, subtotal, saveCompletedOrder, hasInsufficientFunds } = useCart();
+  const { usdcBalance, isConnected, isLoadingBalance } = useWallet();
   const router = useRouter();
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("crypto");
   const [showPaymentComponent, setShowPaymentComponent] = useState(false);
   const [modalError, setModalError] = useState<string | null>(null);
-  const formRef = useRef<HTMLFormElement>(null);
   const { payment, isLoading, error, createPayment, reset } = usePayment();
+  const [customerInfo, setCustomerInfo] = useState<{ name: string; email: string } | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<CheckoutFormData>({
+    resolver: zodResolver(checkoutFormSchema),
+  });
+
+  // Check if user has insufficient funds
+  const insufficientFunds = isConnected && !isLoadingBalance && hasInsufficientFunds(usdcBalance);
+
+  const onSubmit = async (data: CheckoutFormData) => {
     setModalError(null);
-
-    const formData = new FormData(formRef.current!);
-    const name = formData.get("full-name") as string;
-    const email = formData.get("email") as string;
-
-    if (!name || !email) {
-      setModalError("Please fill in all required fields");
-      return;
-    }
 
     if (items.length === 0) {
       setModalError("Your cart is empty");
       return;
     }
 
+    // Check if user has sufficient funds
+    if (isConnected && !isLoadingBalance && hasInsufficientFunds(usdcBalance)) {
+      setModalError(`Insufficient funds. You need ${formatPrice(subtotal - usdcBalance)} more to complete this purchase.`);
+      return;
+    }
+
+    // Save customer info for later use when saving completed order
+    setCustomerInfo({ name: data["full-name"], email: data.email });
+
     await createPayment({
       maxAmount: subtotal.toFixed(2),
       customer: {
-        name,
-        email,
+        name: data["full-name"],
+        email: data.email,
       },
     });
     setShowPaymentComponent(true);
@@ -89,6 +117,18 @@ function CheckoutContent() {
 
   const handleModalError = (errorMsg: string) => {
     setModalError(errorMsg);
+  };
+
+  const handlePaymentSuccess = () => {
+    // Save completed order to localStorage
+    if (items.length > 0 && customerInfo) {
+      saveCompletedOrder({
+        items: [...items],
+        subtotal,
+        customerName: customerInfo.name,
+        customerEmail: customerInfo.email,
+      });
+    }
   };
 
   return (
@@ -113,7 +153,7 @@ function CheckoutContent() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
               {/* Left Column - Checkout Form */}
               <div className="order-2 lg:order-1">
-                <form ref={formRef} onSubmit={handleSubmit} className="space-y-8">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
                 {/* Contact Section */}
                 <section>
                   <h2 className="text-lg font-semibold text-[#0a0b0d] mb-4">Contact</h2>
@@ -125,10 +165,17 @@ function CheckoutContent() {
                       <input
                         type="text"
                         id="full-name"
-                        name="full-name"
-                        className="w-full px-4 py-3 bg-[#f9fafb] border border-[#e2e4e9] rounded-xl text-[#0a0b0d] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#0052ff]/20 focus:border-[#0052ff] transition-all"
+                        {...register("full-name")}
+                        className={`w-full px-4 py-3 bg-[#f9fafb] border rounded-xl text-[#0a0b0d] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 transition-all ${
+                          errors["full-name"]
+                            ? "border-red-500 focus:ring-red-500/20 focus:border-red-500"
+                            : "border-[#e2e4e9] focus:ring-[#0052ff]/20 focus:border-[#0052ff]"
+                        }`}
                         placeholder="Full Name"
                       />
+                      {errors["full-name"] && (
+                        <p className="mt-1 text-sm text-red-600">{errors["full-name"].message}</p>
+                      )}
                     </div>
                     <div>
                       <label htmlFor="email" className="block text-sm text-[#4a5568] mb-2">
@@ -137,10 +184,17 @@ function CheckoutContent() {
                       <input
                         type="email"
                         id="email"
-                        name="email"
-                        className="w-full px-4 py-3 bg-[#f9fafb] border border-[#e2e4e9] rounded-xl text-[#0a0b0d] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#0052ff]/20 focus:border-[#0052ff] transition-all"
+                        {...register("email")}
+                        className={`w-full px-4 py-3 bg-[#f9fafb] border rounded-xl text-[#0a0b0d] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 transition-all ${
+                          errors.email
+                            ? "border-red-500 focus:ring-red-500/20 focus:border-red-500"
+                            : "border-[#e2e4e9] focus:ring-[#0052ff]/20 focus:border-[#0052ff]"
+                        }`}
                         placeholder="Email"
                       />
+                      {errors.email && (
+                        <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+                      )}
                     </div>
                   </div>
                 </section>
@@ -219,10 +273,17 @@ function CheckoutContent() {
                       <input
                         type="text"
                         id="country"
-                        name="country"
-                        className="w-full px-4 py-3 bg-[#f9fafb] border border-[#e2e4e9] rounded-xl text-[#0a0b0d] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#0052ff]/20 focus:border-[#0052ff] transition-all"
+                        {...register("country")}
+                        className={`w-full px-4 py-3 bg-[#f9fafb] border rounded-xl text-[#0a0b0d] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 transition-all ${
+                          errors.country
+                            ? "border-red-500 focus:ring-red-500/20 focus:border-red-500"
+                            : "border-[#e2e4e9] focus:ring-[#0052ff]/20 focus:border-[#0052ff]"
+                        }`}
                         placeholder="Country"
                       />
+                      {errors.country && (
+                        <p className="mt-1 text-sm text-red-600">{errors.country.message}</p>
+                      )}
                     </div>
                     <div>
                       <label htmlFor="address" className="block text-sm text-[#4a5568] mb-2">
@@ -231,10 +292,17 @@ function CheckoutContent() {
                       <input
                         type="text"
                         id="address"
-                        name="address"
-                        className="w-full px-4 py-3 bg-[#f9fafb] border border-[#e2e4e9] rounded-xl text-[#0a0b0d] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#0052ff]/20 focus:border-[#0052ff] transition-all"
+                        {...register("address")}
+                        className={`w-full px-4 py-3 bg-[#f9fafb] border rounded-xl text-[#0a0b0d] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 transition-all ${
+                          errors.address
+                            ? "border-red-500 focus:ring-red-500/20 focus:border-red-500"
+                            : "border-[#e2e4e9] focus:ring-[#0052ff]/20 focus:border-[#0052ff]"
+                        }`}
                         placeholder="Address"
                       />
+                      {errors.address && (
+                        <p className="mt-1 text-sm text-red-600">{errors.address.message}</p>
+                      )}
                     </div>
                     <div>
                       <label htmlFor="apartment" className="block text-sm text-[#4a5568] mb-2">
@@ -243,7 +311,7 @@ function CheckoutContent() {
                       <input
                         type="text"
                         id="apartment"
-                        name="apartment"
+                        {...register("apartment")}
                         className="w-full px-4 py-3 bg-[#f9fafb] border border-[#e2e4e9] rounded-xl text-[#0a0b0d] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#0052ff]/20 focus:border-[#0052ff] transition-all"
                         placeholder="Apartment, suite, etc."
                       />
@@ -256,10 +324,17 @@ function CheckoutContent() {
                         <input
                           type="text"
                           id="city"
-                          name="city"
-                          className="w-full px-4 py-3 bg-[#f9fafb] border border-[#e2e4e9] rounded-xl text-[#0a0b0d] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#0052ff]/20 focus:border-[#0052ff] transition-all"
+                          {...register("city")}
+                          className={`w-full px-4 py-3 bg-[#f9fafb] border rounded-xl text-[#0a0b0d] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 transition-all ${
+                            errors.city
+                              ? "border-red-500 focus:ring-red-500/20 focus:border-red-500"
+                              : "border-[#e2e4e9] focus:ring-[#0052ff]/20 focus:border-[#0052ff]"
+                          }`}
                           placeholder="City"
                         />
+                        {errors.city && (
+                          <p className="mt-1 text-sm text-red-600">{errors.city.message}</p>
+                        )}
                       </div>
                       <div>
                         <label htmlFor="state" className="block text-sm text-[#4a5568] mb-2">
@@ -268,10 +343,17 @@ function CheckoutContent() {
                         <input
                           type="text"
                           id="state"
-                          name="state"
-                          className="w-full px-4 py-3 bg-[#f9fafb] border border-[#e2e4e9] rounded-xl text-[#0a0b0d] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#0052ff]/20 focus:border-[#0052ff] transition-all"
+                          {...register("state")}
+                          className={`w-full px-4 py-3 bg-[#f9fafb] border rounded-xl text-[#0a0b0d] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 transition-all ${
+                            errors.state
+                              ? "border-red-500 focus:ring-red-500/20 focus:border-red-500"
+                              : "border-[#e2e4e9] focus:ring-[#0052ff]/20 focus:border-[#0052ff]"
+                          }`}
                           placeholder="State"
                         />
+                        {errors.state && (
+                          <p className="mt-1 text-sm text-red-600">{errors.state.message}</p>
+                        )}
                       </div>
                       <div>
                         <label htmlFor="zip" className="block text-sm text-[#4a5568] mb-2">
@@ -280,14 +362,36 @@ function CheckoutContent() {
                         <input
                           type="text"
                           id="zip"
-                          name="zip"
-                          className="w-full px-4 py-3 bg-[#f9fafb] border border-[#e2e4e9] rounded-xl text-[#0a0b0d] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#0052ff]/20 focus:border-[#0052ff] transition-all"
+                          {...register("zip")}
+                          className={`w-full px-4 py-3 bg-[#f9fafb] border rounded-xl text-[#0a0b0d] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 transition-all ${
+                            errors.zip
+                              ? "border-red-500 focus:ring-red-500/20 focus:border-red-500"
+                              : "border-[#e2e4e9] focus:ring-[#0052ff]/20 focus:border-[#0052ff]"
+                          }`}
                           placeholder="ZIP code"
                         />
+                        {errors.zip && (
+                          <p className="mt-1 text-sm text-red-600">{errors.zip.message}</p>
+                        )}
                       </div>
                     </div>
                   </div>
                 </section>
+
+                {/* Insufficient funds warning */}
+                {insufficientFunds && (
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-xl">
+                    <p className="text-sm text-red-600 font-medium">
+                      Insufficient funds
+                    </p>
+                    <p className="text-xs text-red-500 mt-1">
+                      You need {formatPrice(subtotal - usdcBalance)} more to complete this purchase.
+                    </p>
+                    <p className="text-xs text-red-500 mt-1">
+                      Your balance: {formatPrice(usdcBalance)} | Total: {formatPrice(subtotal)}
+                    </p>
+                  </div>
+                )}
 
                 {/* Error Message */}
                 {(error || modalError) && (
@@ -299,7 +403,7 @@ function CheckoutContent() {
                 {/* Pay Now Button */}
                 <button
                   type="submit"
-                  disabled={isLoading}
+                  disabled={isLoading || insufficientFunds}
                   className="w-full px-5 py-3.5 bg-[#0a0b0d] text-white rounded-xl text-sm font-semibold hover:bg-[#1a1b1d] transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                 >
                   {isLoading ? "Processing..." : "Pay now"}
@@ -362,6 +466,7 @@ function CheckoutContent() {
         payment={payment}
         onClose={handleCloseModal}
         onError={handleModalError}
+        onPaymentSuccess={handlePaymentSuccess}
       />
     </div>
   );

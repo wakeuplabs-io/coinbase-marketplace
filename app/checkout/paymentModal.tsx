@@ -44,6 +44,7 @@ interface PaymentModalProps {
   payment: PaymentLink | null;
   onClose: () => void;
   onError?: (error: string) => void;
+  onPaymentSuccess?: () => void;
 }
 
 export default function PaymentModal({
@@ -51,6 +52,7 @@ export default function PaymentModal({
   payment,
   onClose,
   onError,
+  onPaymentSuccess,
 }: PaymentModalProps) {
   const router = useRouter();
   const paymentComponentRef = useRef<CoinbasePaymentElement | null>(null);
@@ -74,6 +76,8 @@ export default function PaymentModal({
     const handleCompleted = (event: Event) => {
       const customEvent = event as CustomEvent;
       if (customEvent.detail?.status === 'success') {
+        // Call success callback before redirecting
+        onPaymentSuccess?.();
         // Redirect to success page
         router.push('/success');
       } else {
@@ -114,7 +118,7 @@ export default function PaymentModal({
       component.removeEventListener('paymentError', handlePaymentError as EventListener);
       component.removeEventListener('deeplink', handleDeeplink as EventListener);
     };
-  }, [isOpen, router, onClose, onError]);
+  }, [isOpen, router, onClose, onError, onPaymentSuccess]);
 
   if (!isOpen) return null;
 
