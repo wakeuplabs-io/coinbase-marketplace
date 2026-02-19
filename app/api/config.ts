@@ -14,9 +14,6 @@ const envSchema = z.object({
   COINBASE_API_KEY_SECRET: z.string().min(1),
   COINBASE_PAYMENTS_RECEIVER: z.string().refine(isAddress, { message: 'receiver must be a valid Ethereum address' }),
   COINBASE_PAYMENTS_BASE_REDIRECT_URL: z.string().min(1),
-
-  // Payment Token Contract
-  PAYMENT_TOKEN_PRIVATE_KEY: z.string().min(1),
 });
 
 export type Env = z.infer<typeof envSchema>;

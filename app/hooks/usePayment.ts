@@ -26,7 +26,7 @@ export interface UsePaymentReturn {
   payment: PaymentLink | null;
   isLoading: boolean;
   error: string | null;
-  createPayment: (params: CreatePaymentParams) => Promise<PaymentResponse>;
+  createPayment: (params: CreatePaymentParams) => Promise<{payment: PaymentResponse }>;
   reset: () => void;
 }
 
@@ -36,7 +36,7 @@ export function usePayment(): UsePaymentReturn {
   const [error, setError] = useState<string | null>(null);
 
   const createPayment = useCallback(
-    async (params: CreatePaymentParams): Promise<PaymentResponse> => {
+    async (params: CreatePaymentParams): Promise<{payment: PaymentResponse}> => {
       setIsLoading(true);
       setError(null);
 
