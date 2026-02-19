@@ -1,3 +1,5 @@
+import "server-only";
+
 /**
  * Coinbase CDP SDK Faucet Service
  * Handles faucet requests for test tokens on Base Sepolia

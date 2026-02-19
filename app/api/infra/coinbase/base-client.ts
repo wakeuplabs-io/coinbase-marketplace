@@ -1,3 +1,4 @@
+import "server-only";
 /**
  * Coinbase Payments SDK wrapper
  * Provides a clean interface for all Coinbase Payments operations

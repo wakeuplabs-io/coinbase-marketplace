@@ -1,3 +1,4 @@
+import "server-only";
 /**
  * Environment configuration with validation
  * Uses Zod for runtime type safety
