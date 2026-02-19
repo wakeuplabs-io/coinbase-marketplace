@@ -19,11 +19,15 @@ const envSchema = z.object({
 export type Env = z.infer<typeof envSchema>;
 
 export function getEnv(): Env {
-    const result = envSchema.safeParse(process.env);
-    if (!result.success) {
-      console.error("❌ Invalid environment variables:");
-      console.error(JSON.stringify(result.error.flatten().fieldErrors, null, 2));
-      throw new Error("Invalid environment variables. Please check your .env.local file.");
-    }
-    return result.data;
+  if (typeof window !== "undefined") {
+    throw new Error("getEnv() must not be called on the client");
+  }
+
+  const result = envSchema.safeParse(process.env);
+  if (!result.success) {
+    console.error("❌ Invalid environment variables:");
+    console.error(JSON.stringify(result.error.flatten().fieldErrors, null, 2));
+    throw new Error("Invalid environment variables. Check Amplify env vars.");
+  }
+  return result.data;
 }
