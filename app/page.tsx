@@ -1,14 +1,60 @@
 "use client";
 
+import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import QRCode from "react-qr-code";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import AppleLogo from "./components/icons/AppleLogo";
 import PlayStoreLogo from "./components/icons/PlayStoreLogo";
 import ArrowRight from "./components/icons/ArrowRight";
+import FaucetRequest from "./components/FaucetRequest";
+import WalletConnectModal from "./components/WalletConnectModal";
+import { useWallet } from "./hooks/useWallet";
 import { config } from "./lib/config";
 
 export default function Home() {
+  const [showFaucetModal, setShowFaucetModal] = useState(false);
+  const [showConnectModal, setShowConnectModal] = useState(false);
+  const router = useRouter();
+  const { isConnected, usdcBalance, isLoadingBalance } = useWallet();
+  const previousConnectedRef = useRef(false);
+
+  // Check balance after connection and open faucet if balance is zero
+  useEffect(() => {
+    // Only check when connection state changes from false to true
+    if (isConnected && !previousConnectedRef.current && !isLoadingBalance) {
+      previousConnectedRef.current = true;
+      if (usdcBalance === 0) {
+        // Use requestAnimationFrame to avoid cascading renders
+        requestAnimationFrame(() => {
+          setShowFaucetModal(true);
+        });
+      }
+    }
+    // Reset when disconnected
+    if (!isConnected) {
+      previousConnectedRef.current = false;
+    }
+  }, [isConnected, usdcBalance, isLoadingBalance]);
+
+  const handleAlreadyHaveWallet = () => {
+    if (!isConnected) {
+      setShowConnectModal(true);
+    } else {
+      // If already connected and has balance, go to marketplace
+      router.push(config.marketplaceUrl);
+    }
+  };
+
+  const handleFaucetSuccess = () => {
+    // Close modal and redirect to marketplace after faucet success
+    setShowFaucetModal(false);
+    // Small delay to show success message before redirect
+    setTimeout(() => {
+      router.push(config.marketplaceUrl);
+    }, 1500);
+  };
   return (
     <div className="min-h-screen overflow-x-hidden flex flex-col bg-white">
       {/* Skip to main content for accessibility */}
@@ -41,22 +87,14 @@ export default function Home() {
             {/* Secondary CTA - Desktop only */}
             <div className="hidden lg:block mt-8 animate-fade-in-up delay-200">
               <div className="flex flex-col gap-3 items-start">
-                <a
-                  href={config.marketplaceUrl}
+                <button
+                  onClick={handleAlreadyHaveWallet}
                   className="group inline-flex items-center gap-2 px-5 py-2.5 text-[#0052ff] font-medium border border-[#0052ff]/20 rounded-xl hover:bg-[#0052ff]/5 transition-all hover:scale-[1.02] active:scale-[0.98]"
                   aria-label="Continue to the marketplace if you already have a wallet"
                 >
                   I already have a wallet
                   <ArrowRight />
-                </a>
-                <a
-                  href={config.marketplaceUrl}
-                  className="group inline-flex items-center gap-2 px-5 py-2.5 text-[#0052ff] font-medium border border-[#0052ff]/20 rounded-xl hover:bg-[#0052ff]/5 transition-all hover:scale-[1.02] active:scale-[0.98]"
-                  aria-label="Get test USDC tokens to buy"
-                >
-                  Get test USDC tokens to buy
-                  <ArrowRight />
-                </a>
+                </button>
               </div>
             </div>
           </div>
@@ -122,20 +160,13 @@ export default function Home() {
               {/* Secondary CTA - Mobile */}
               <div className="mt-5 sm:mt-6 animate-fade-in-up delay-200 w-full flex justify-center">
                 <div className="flex flex-col gap-2.5 sm:gap-3 items-center">
-                  <a
-                    href={config.marketplaceUrl}
+                  <button
+                    onClick={handleAlreadyHaveWallet}
                     className="inline-flex items-center justify-center px-5 sm:px-6 py-2.5 text-[13px] sm:text-sm text-[#0052ff] font-medium border border-[#0052ff]/20 rounded-full hover:bg-[#0052ff]/5 transition-all active:scale-[0.95] touch-manipulation whitespace-nowrap"
                     aria-label="Continue to the marketplace if you already have a wallet"
                   >
                     I already have a wallet
-                  </a>
-                  <a
-                    href={config.marketplaceUrl}
-                    className="inline-flex items-center justify-center px-5 sm:px-6 py-2.5 text-[13px] sm:text-sm text-[#0052ff] font-medium border border-[#0052ff]/20 rounded-full hover:bg-[#0052ff]/5 transition-all active:scale-[0.95] touch-manipulation whitespace-nowrap"
-                    aria-label="Get test USDC tokens to buy"
-                  >
-                    Get test USDC tokens to buy
-                  </a>
+                  </button>
                 </div>
               </div>
             </div>
@@ -202,6 +233,51 @@ export default function Home() {
       </main>
 
       <Footer />
+
+      {/* Wallet Connect Modal */}
+      <WalletConnectModal
+        isOpen={showConnectModal}
+        onClose={() => setShowConnectModal(false)}
+      />
+
+      {/* Faucet Modal */}
+      {showFaucetModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="bg-white rounded-2xl shadow-xl">
+              <div className="sticky top-0 bg-white border-b border-[#e2e4e9] px-6 py-4 flex items-center justify-between rounded-t-2xl">
+                <h2 className="text-xl font-semibold text-[#0a0b0d]">
+                  Request Test Tokens
+                </h2>
+                <button
+                  onClick={() => setShowFaucetModal(false)}
+                  className="p-2 hover:bg-[#f9fafb] rounded-lg transition-colors"
+                  aria-label="Close modal"
+                >
+                  <svg
+                    className="w-5 h-5 text-[#4a5568]"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+              <div className="p-6">
+                <FaucetRequest
+                  onSuccess={handleFaucetSuccess}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

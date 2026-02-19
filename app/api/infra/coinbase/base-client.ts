@@ -48,8 +48,6 @@ export class CoinbaseClient {
       const jwt = await this.authenticate(method, path);
       const idempotencyKey = crypto.randomUUID();
 
-      console.log('url', url);
-
       const fetchOptions: RequestInit = {
         method,
         headers: {

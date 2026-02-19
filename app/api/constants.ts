@@ -10,6 +10,11 @@ const tokens = {
   [NetworkId.BASE_SEPOLIA]: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
 }
 
+export const explorerUrls = {
+  [NetworkId.BASE]: 'https://basescan.org',
+  [NetworkId.BASE_SEPOLIA]: 'https://sepolia.basescan.org',
+}
+
 // Lazy-load payment config to avoid evaluating env vars at module load time
 let _paymentConfig: ReturnType<typeof getPaymentConfig> | null = null;
 
