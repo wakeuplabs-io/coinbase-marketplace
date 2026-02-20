@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useEffect } from "react";
-import Script from "next/script";
 
 // Declare the coinbase-payment web component type
 // This namespace declaration is required for web component type augmentation
@@ -37,6 +36,7 @@ interface CoinbasePaymentElement extends HTMLElement {
 interface PaymentModalProps {
   isOpen: boolean;
   payment: PaymentLink | null;
+  isLoading?: boolean;
   onClose: () => void;
   onPaymentSuccess?: () => void;
 }
@@ -44,6 +44,7 @@ interface PaymentModalProps {
 export default function PaymentModal({
   isOpen,
   payment,
+  isLoading = false,
   onClose,
   onPaymentSuccess,
 }: PaymentModalProps) {
@@ -68,12 +69,12 @@ export default function PaymentModal({
         const customEvent = event as CustomEvent;
         if (customEvent.detail?.status === 'success') {
           onPaymentSuccess?.();
-          onClose();
+          // onClose();
         }
       };
   
       const handleCancelled = () => {
-        onClose();
+        // onClose();
       };
   
       const handlePaymentError = (event: Event) => {
@@ -108,34 +109,39 @@ export default function PaymentModal({
 
   return (
     <>
-      {/* Coinbase Payment Component Script */}
-      <Script
-        src="https://payments.coinbase.com/payments/components/v1/payment-link.mjs"
-        strategy="lazyOnload"
-        type="module"
-      />
-
-      {/* Overlay */}
+      {/* Script is loaded in checkout page for earlier availability */}
+      {/* Overlay - prevent close during loading to avoid race with in-flight API */}
       <button
         type="button"
-        className="fixed inset-0 z-50 bg-black/50 animate-fade-backdrop cursor-pointer border-0 p-0 w-full h-full"
-        onClick={onClose}
+        className={`fixed inset-0 z-50 bg-black/50 animate-fade-backdrop border-0 p-0 w-full h-full ${isLoading ? "cursor-wait" : "cursor-pointer"}`}
+        onClick={isLoading ? undefined : onClose}
+        disabled={isLoading}
         aria-label="Close payment modal"
       />
 
       <div
-        className="fixed left-1/2 top-1/2 z-50 min-w-[600px] w-fit max-w-[min(640px,calc(100vw-2rem))] max-h-[85vh] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl bg-white shadow-xl animate-fade-in-up"
+        className="fixed left-1/2 top-1/2 z-50 min-w-[600px] w-fit max-w-[min(640px,calc(100vw-2rem))] max-h-[85vh] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl bg-white shadow-xl animate-fade-in-up flex items-center justify-center"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
+        aria-busy={isLoading}
       >
-        {/* @ts-expect-error - Web component */}
-        <coinbase-payment
-          ref={paymentComponentRef}
-          id="payment-link"
-          layout="single-column"
-          payment={payment}
-        />
+        {isLoading && !payment ? (
+          <div className="flex flex-col items-center justify-center gap-3 p-12">
+            <div className="w-8 h-8 border-2 border-[#0052ff] border-t-transparent rounded-full animate-spin" />
+            <p className="text-sm text-[#4a5568]">Preparing payment...</p>
+          </div>
+        ) : (
+          <>
+            {/* @ts-expect-error - Web component */}
+            <coinbase-payment
+              ref={paymentComponentRef}
+              id="payment-link"
+              layout="single-column"
+              payment={payment}
+            />
+          </>
+        )}
       </div>
     </>
   );

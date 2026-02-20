@@ -20,6 +20,7 @@ export function useCheckoutOrder() {
     isLoadingBalance,
   } = useCheckoutFunds();
 
+  const [isPreparingPayment, setIsPreparingPayment] = useState(false);
   const [modalError, setModalError] = useState<string | null>(null);
   const [web3FormsResult, setWeb3FormsResult] = useState<string>("");
   const [customerInfo, setCustomerInfo] = useState<{
@@ -47,45 +48,51 @@ export function useCheckoutOrder() {
         return;
       }
 
-      setCustomerInfo({
-        name: formData["full-name"],
-        email: formData.email,
-      });
+      setIsPreparingPayment(true);
 
-      setWeb3FormsResult("");
-      const orderMessage = [
-        `Order Summary:`,
-        ...items.map(
-          (i) => `- ${i.name} x${i.quantity}: $${(i.price * i.quantity).toFixed(2)}`
-        ),
-        `Total: $${subtotal.toFixed(2)}`,
-        ``,
-        `Billing: ${formData.address}${formData.apartment ? `, ${formData.apartment}` : ""}, ${formData.city}, ${formData.state} ${formData.zip}, ${formData.country}`,
-      ].join("\n");
-
-      const web3FormData = new FormData();
-      web3FormData.append("access_key", WEB3FORMS_ACCESS_KEY ?? "");
-      web3FormData.append("name", formData["full-name"]);
-      web3FormData.append("email", formData.email);
-      web3FormData.append("message", orderMessage);
-
-      const web3Response = await fetch(
-        "https://api.web3forms.com/submit",
-        {
-          method: "POST",
-          body: web3FormData,
-        }
-      );
-      const web3Data = await web3Response.json();
-      setWeb3FormsResult(web3Data.success ? "Success!" : "Error");
-
-      await createPayment({
-        maxAmount: subtotal.toFixed(2),
-        customer: {
+      try {
+        setCustomerInfo({
           name: formData["full-name"],
           email: formData.email,
-        },
-      });
+        });
+
+        setWeb3FormsResult("");
+        const orderMessage = [
+          `Order Summary:`,
+          ...items.map(
+            (i) => `- ${i.name} x${i.quantity}: $${(i.price * i.quantity).toFixed(2)}`
+          ),
+          `Total: $${subtotal.toFixed(2)}`,
+          ``,
+          `Billing: ${formData.address}${formData.apartment ? `, ${formData.apartment}` : ""}, ${formData.city}, ${formData.state} ${formData.zip}, ${formData.country}`,
+        ].join("\n");
+
+        const web3FormData = new FormData();
+        web3FormData.append("access_key", WEB3FORMS_ACCESS_KEY ?? "");
+        web3FormData.append("name", formData["full-name"]);
+        web3FormData.append("email", formData.email);
+        web3FormData.append("message", orderMessage);
+
+        const web3Response = await fetch(
+          "https://api.web3forms.com/submit",
+          {
+            method: "POST",
+            body: web3FormData,
+          }
+        );
+        const web3Data = await web3Response.json();
+        setWeb3FormsResult(web3Data.success ? "Success!" : "Error");
+
+        await createPayment({
+          maxAmount: subtotal.toFixed(2),
+          customer: {
+            name: formData["full-name"],
+            email: formData.email,
+          },
+        });
+      } finally {
+        setIsPreparingPayment(false);
+      }
     },
     [
       items,
@@ -98,6 +105,7 @@ export function useCheckoutOrder() {
   );
 
   const handleCloseModal = useCallback(() => {
+    setIsPreparingPayment(false);
     setModalError(null);
     setWeb3FormsResult("");
     reset();
@@ -127,6 +135,7 @@ export function useCheckoutOrder() {
     web3FormsResult,
     payment,
     isLoading,
+    isPreparingPayment,
     error,
     insufficientFunds,
   };

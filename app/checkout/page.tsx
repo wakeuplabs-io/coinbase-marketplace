@@ -2,6 +2,7 @@
 
 import { useState, Suspense } from "react";
 import { useRouter } from "next/navigation";
+import Script from "next/script";
 
 import { useCart } from "@/app/context/CartContext";
 import Header from "@/app/components/Header";
@@ -59,12 +60,20 @@ function CheckoutContent() {
     modalError,
     payment,
     isLoading,
+    isPreparingPayment,
     error,
     handlePaymentSuccess,
   } = useCheckoutOrder();
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
+      {/* Load Coinbase payment script on checkout mount so it's ready when user clicks Pay */}
+      <Script
+        src="https://payments.coinbase.com/payments/components/v1/payment-link.mjs"
+        strategy="afterInteractive"
+        type="module"
+        crossOrigin="anonymous"
+      />
       <div className="fixed top-0 left-0 right-0 z-50 w-full bg-white">
         <Header
           showBackButton
@@ -341,10 +350,10 @@ function CheckoutContent() {
                 {/* Pay Now Button */}
                 <button
                   type="submit"
-                  disabled={isLoading || insufficientFunds}
+                  disabled={isLoading || isPreparingPayment || insufficientFunds}
                   className="w-full px-5 py-3.5 bg-[#0a0b0d] text-white rounded-xl text-sm font-semibold hover:bg-[#1a1b1d] transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                 >
-                  {isLoading ? "Processing..." : "Pay now"}
+                  {(isLoading || isPreparingPayment) ? "Processing..." : "Pay now"}
                 </button>
                 <p className="mt-1.5 text-xs text-[#4a5568] text-center">
                   Remember to pay with the previously connected wallet.
@@ -399,8 +408,9 @@ function CheckoutContent() {
 
       {/* Payment Modal */}
       <PaymentModal
-        isOpen={!!payment}
+        isOpen={!!payment || isPreparingPayment}
         payment={payment}
+        isLoading={isPreparingPayment || isLoading}
         onClose={handleCloseModal}
         onPaymentSuccess={handlePaymentSuccess}
       />
