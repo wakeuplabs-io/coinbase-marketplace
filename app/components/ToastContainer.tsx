@@ -66,10 +66,12 @@ export default function ToastContainer() {
   return (
     <div className="fixed bottom-28 right-4 z-50 flex flex-col gap-2">
       {toasts.map((toast) => (
-        <div
+        <button
           key={toast.id}
-          className="animate-toast-in flex items-center gap-3 bg-white border border-[#e2e4e9] rounded-xl px-4 py-3 shadow-lg min-w-[280px] max-w-[350px]"
+          type="button"
+          className="animate-toast-in w-full flex items-center gap-3 bg-white border border-[#e2e4e9] rounded-xl px-4 py-3 shadow-lg min-w-[280px] max-w-[350px] cursor-pointer text-left"
           onClick={() => removeToast(toast.id)}
+          aria-label="Dismiss notification"
         >
           {/* Icon */}
           <div className="flex-shrink-0">
@@ -98,7 +100,7 @@ export default function ToastContainer() {
           <div className="flex-shrink-0">
             <CartIcon />
           </div>
-        </div>
+        </button>
       ))}
     </div>
   );

@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { CartProviderWrapper } from "./components/CartProviderWrapper";
 import { WagmiProviderWrapper } from "./components/WagmiProvider";
+import { FaucetModalProvider } from "./context/FaucetModalContext";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -26,7 +27,9 @@ export default function RootLayout({
       <body className={`${inter.variable} font-sans antialiased`}>
         <WagmiProviderWrapper>
           <CartProviderWrapper>
-            {children}
+            <FaucetModalProvider>
+              {children}
+            </FaucetModalProvider>
           </CartProviderWrapper>
         </WagmiProviderWrapper>
       </body>

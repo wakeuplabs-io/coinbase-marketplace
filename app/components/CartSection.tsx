@@ -7,6 +7,7 @@ import CartItem from "./CartItem";
 import { useRouter } from "next/navigation";
 import { formatPrice } from "../lib/utils";
 import { useWallet } from "../hooks/useWallet";
+import { useFaucetModal } from "../context/FaucetModalContext";
 
 // Empty cart illustration with sad face only
 function EmptyCartIcon() {
@@ -20,6 +21,7 @@ function EmptyCartIcon() {
 
 export default function CartSection() {
   const { items, itemCount, subtotal, isCartOpen, setIsCartOpen, hasInsufficientFunds } = useCart();
+  const { openFaucetModal } = useFaucetModal();
   const { usdcBalance, isConnected, isLoadingBalance } = useWallet();
   const router = useRouter();
   const [isDragging, setIsDragging] = useState(false);
@@ -225,6 +227,13 @@ export default function CartSection() {
                 <p className="text-xs text-red-500 mt-1">
                   Your balance: {formatPrice(usdcBalance)} | Total: {formatPrice(subtotal)}
                 </p>
+                <button
+                  type="button"
+                  onClick={openFaucetModal}
+                  className="mt-1.5 text-xs font-medium text-[#0052ff] hover:underline"
+                >
+                  Get test tokens
+                </button>
               </div>
             )}
             

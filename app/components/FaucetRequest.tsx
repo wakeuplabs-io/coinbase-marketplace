@@ -6,9 +6,11 @@ import { useWallet } from '../hooks/useWallet';
 
 interface FaucetRequestProps {
   onSuccess?: () => void;
+  /** When true, omits title and outer container (for use inside modal) */
+  embedded?: boolean;
 }
 
-export default function FaucetRequest({ onSuccess }: FaucetRequestProps) {
+export default function FaucetRequest({ onSuccess, embedded }: FaucetRequestProps) {
   const { address, isConnected, isLoading: isWalletLoading, error: walletError, connect } = useWallet();
   const [selectedToken, setSelectedToken] = useState<FaucetToken>('usdc');
   const { requestFaucet, isLoading: isFaucetLoading, error: faucetError, reset } = useFaucet();
@@ -46,11 +48,13 @@ export default function FaucetRequest({ onSuccess }: FaucetRequestProps) {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto">
-      <div className="bg-white border border-[#e2e4e9] rounded-2xl p-6 shadow-sm">
-        <h2 className="text-xl font-semibold text-[#0a0b0d] mb-2">
-          Request Test Tokens
-        </h2>
+    <div className={`w-full max-w-md mx-auto ${embedded ? "" : "p-6"}`}>
+      <div className={embedded ? "" : "bg-white border border-[#e2e4e9] rounded-2xl p-6 shadow-sm"}>
+        {!embedded && (
+          <h2 className="text-xl font-semibold text-[#0a0b0d] mb-2">
+            Request Test Tokens
+          </h2>
+        )}
         <p className="text-sm text-[#4a5568] mb-6">
           Get test USDC tokens on Base Sepolia for testing
         </p>

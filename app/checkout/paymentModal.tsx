@@ -38,12 +38,14 @@ interface PaymentModalProps {
   isOpen: boolean;
   payment: PaymentLink | null;
   onClose: () => void;
+  onPaymentSuccess?: () => void;
 }
 
 export default function PaymentModal({
   isOpen,
   payment,
   onClose,
+  onPaymentSuccess,
 }: PaymentModalProps) {
   const paymentComponentRef = useRef<CoinbasePaymentElement | null>(null);
 
@@ -65,7 +67,7 @@ export default function PaymentModal({
       const handleCompleted = (event: Event) => {
         const customEvent = event as CustomEvent;
         if (customEvent.detail?.status === 'success') {
-          // Call success callback before redirecting
+          onPaymentSuccess?.();
           onClose();
         }
       };
@@ -99,7 +101,7 @@ export default function PaymentModal({
         component.removeEventListener('paymentError', handlePaymentError as EventListener);
         component.removeEventListener('deeplink', handleDeeplink as EventListener);
       };
-    }, [isOpen, onClose]);
+    }, [isOpen, onClose, onPaymentSuccess]);
   
 
   if (!isOpen) return null;
@@ -114,10 +116,11 @@ export default function PaymentModal({
       />
 
       {/* Overlay */}
-      <div
-        className="fixed inset-0 z-50 bg-black/50 animate-fade-backdrop"
+      <button
+        type="button"
+        className="fixed inset-0 z-50 bg-black/50 animate-fade-backdrop cursor-pointer border-0 p-0 w-full h-full"
         onClick={onClose}
-        aria-hidden="true"
+        aria-label="Close payment modal"
       />
 
       <div

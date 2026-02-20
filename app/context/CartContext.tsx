@@ -49,17 +49,21 @@ const COMPLETED_ORDERS_KEY = "coinbase-marketplace-completed-orders";
 const MAX_COMPLETED_ORDERS = 50; // Limit to prevent localStorage from growing too large
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  // Load incomplete order from localStorage on mount
-  const [items, setItems] = useState<CartItem[]>(() => {
-    if (typeof window === "undefined") return [];
+  const [items, setItems] = useState<CartItem[]>([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
+  useEffect(() => {
     try {
       const saved = localStorage.getItem(INCOMPLETE_ORDER_KEY);
-      return saved ? JSON.parse(saved) : [];
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        const itemsToRestore = Array.isArray(parsed) ? parsed : [];
+        queueMicrotask(() => setItems(itemsToRestore));
+      }
     } catch {
-      return [];
+      // Ignore parse errors
     }
-  });
-  const [isCartOpen, setIsCartOpen] = useState(false);
+  }, []);
 
   // Save incomplete order to localStorage whenever items change
   useEffect(() => {

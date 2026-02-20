@@ -2,12 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 
 import { useCart } from "@/app/context/CartContext";
-
 import Header from "@/app/components/Header";
 import ProductIcon from "@/app/components/ProductIcon";
 import {
@@ -15,26 +11,14 @@ import {
   ShopPayLogo,
   CryptoWalletIcons,
 } from "@/app/components/PaymentIcons";
-
-import { usePayment } from "@/app/hooks/usePayment";
-import { useWallet } from "@/app/hooks/useWallet";
-
 import { formatPrice } from "@/app/lib/utils";
 
+import { useCheckoutForm } from "@/app/checkout/hooks/useCheckoutForm";
+import { useCheckoutFunds } from "@/app/checkout/hooks/useCheckoutFunds";
+import { useCheckoutOrder } from "@/app/checkout/hooks/useCheckoutOrder";
+
 import PaymentModal from "./paymentModal";
-
-const checkoutFormSchema = z.object({
-  "full-name": z.string().min(1, "Full name is required"),
-  email: z.string().min(1, "Email is required").email("Please enter a valid email address"),
-  country: z.string().min(1, "Country is required"),
-  address: z.string().min(1, "Address is required"),
-  apartment: z.string().optional(),
-  city: z.string().min(1, "City is required"),
-  state: z.string().min(1, "State is required"),
-  zip: z.string().min(1, "ZIP code is required"),
-});
-
-type CheckoutFormData = z.infer<typeof checkoutFormSchema>;
+import FaucetRequest from "@/app/components/FaucetRequest";
 
 function PlaceholderThumbnail({
   productName,
@@ -62,71 +46,22 @@ function PlaceholderThumbnail({
 type PaymentMethod = "credit" | "shop" | "crypto";
 
 function CheckoutContent() {
-  const { items, subtotal, saveCompletedOrder, hasInsufficientFunds } = useCart();
-  const { usdcBalance, isConnected, isLoadingBalance } = useWallet();
+  const { items, subtotal } = useCart();
   const router = useRouter();
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("crypto");
-  const [modalError, setModalError] = useState<string | null>(null);
-  const { payment, isLoading, error, createPayment, reset } = usePayment();
-  const [customerInfo, setCustomerInfo] = useState<{ name: string; email: string } | null>(null);
+  const [showFaucetModal, setShowFaucetModal] = useState(false);
 
+  const { register, handleSubmit, formState: { errors } } = useCheckoutForm();
+  const { insufficientFunds, usdcBalance } = useCheckoutFunds();
   const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<CheckoutFormData>({
-    resolver: zodResolver(checkoutFormSchema),
-  });
-
-  // Check if user has insufficient funds
-  const insufficientFunds = isConnected && !isLoadingBalance && hasInsufficientFunds(usdcBalance);
-
-  const onSubmit = async (data: CheckoutFormData) => {
-    setModalError(null);
-
-    if (items.length === 0) {
-      setModalError("Your cart is empty");
-      return;
-    }
-
-    // Check if user has sufficient funds
-    if (isConnected && !isLoadingBalance && hasInsufficientFunds(usdcBalance)) {
-      setModalError(`Insufficient funds. You need ${formatPrice(subtotal - usdcBalance)} more to complete this purchase.`);
-      return;
-    }
-
-    // Save customer info for later use when saving completed order
-    setCustomerInfo({ name: data["full-name"], email: data.email });
-
-    await createPayment({
-      maxAmount: subtotal.toFixed(2),
-      customer: {
-        name: data["full-name"],
-        email: data.email,
-      },
-    });
-  };
-
-  const handleCloseModal = () => {
-    setModalError(null);
-    reset();
-  };
-
-  const handleModalError = (errorMsg: string) => {
-    setModalError(errorMsg);
-  };
-
-  const handlePaymentSuccess = () => {
-    // Save completed order to localStorage
-    if (items.length > 0 && customerInfo) {
-      saveCompletedOrder({
-        items: [...items],
-        subtotal,
-        customerName: customerInfo.name,
-        customerEmail: customerInfo.email,
-      });
-    }
-  };
+    submitOrder,
+    handleCloseModal,
+    modalError,
+    payment,
+    isLoading,
+    error,
+    handlePaymentSuccess,
+  } = useCheckoutOrder();
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -149,7 +84,7 @@ function CheckoutContent() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
               {/* Left Column - Checkout Form */}
               <div className="order-2 lg:order-1">
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+                <form onSubmit={handleSubmit(submitOrder)} className="space-y-8">
                 {/* Contact Section */}
                 <section>
                   <h2 className="text-lg font-semibold text-[#0a0b0d] mb-4">Contact</h2>
@@ -386,6 +321,13 @@ function CheckoutContent() {
                     <p className="text-xs text-red-500 mt-1">
                       Your balance: {formatPrice(usdcBalance)} | Total: {formatPrice(subtotal)}
                     </p>
+                    <button
+                      type="button"
+                      onClick={() => setShowFaucetModal(true)}
+                      className="mt-2 text-sm font-medium text-[#0052ff] hover:underline"
+                    >
+                      Get test tokens
+                    </button>
                   </div>
                 )}
 
@@ -460,7 +402,47 @@ function CheckoutContent() {
         isOpen={!!payment}
         payment={payment}
         onClose={handleCloseModal}
+        onPaymentSuccess={handlePaymentSuccess}
       />
+
+      {/* Faucet Modal */}
+      {showFaucetModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="bg-white rounded-2xl shadow-xl">
+              <div className="sticky top-0 bg-white border-b border-[#e2e4e9] px-6 py-4 flex items-center justify-between rounded-t-2xl">
+                <h2 className="text-xl font-semibold text-[#0a0b0d]">
+                  Request Test Tokens
+                </h2>
+                <button
+                  onClick={() => setShowFaucetModal(false)}
+                  className="p-2 hover:bg-[#f9fafb] rounded-lg transition-colors"
+                  aria-label="Close modal"
+                >
+                  <svg
+                    className="w-5 h-5 text-[#4a5568]"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+              <div className="p-6">
+                <FaucetRequest
+                  onSuccess={() => setShowFaucetModal(false)}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

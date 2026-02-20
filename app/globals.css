@@ -24,6 +24,12 @@ body {
   color: var(--foreground);
 }
 
+/* Show pointer cursor on interactive elements */
+button:not(:disabled),
+a[href] {
+  cursor: pointer;
+}
+
 /* Focus ring styles for accessibility */
 *:focus-visible {
   outline: 2px solid var(--accent);
