@@ -66,7 +66,6 @@ function CheckoutContent() {
   const { usdcBalance, isConnected, isLoadingBalance } = useWallet();
   const router = useRouter();
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("crypto");
-  const [showPaymentComponent, setShowPaymentComponent] = useState(false);
   const [modalError, setModalError] = useState<string | null>(null);
   const { payment, isLoading, error, createPayment, reset } = usePayment();
   const [customerInfo, setCustomerInfo] = useState<{ name: string; email: string } | null>(null);
@@ -106,11 +105,9 @@ function CheckoutContent() {
         email: data.email,
       },
     });
-    setShowPaymentComponent(true);
   };
 
   const handleCloseModal = () => {
-    setShowPaymentComponent(false);
     setModalError(null);
     reset();
   };
@@ -149,7 +146,6 @@ function CheckoutContent() {
       {/* Main Content */}
       <main className="flex-1 px-5 md:px-8 py-8 lg:py-12 pt-24 lg:pt-28">
         <div className="max-w-6xl mx-auto">
-          {!showPaymentComponent && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
               {/* Left Column - Checkout Form */}
               <div className="order-2 lg:order-1">
@@ -456,17 +452,14 @@ function CheckoutContent() {
               </div>
               </div>
             </div>
-          )}
         </div>
       </main>
 
       {/* Payment Modal */}
       <PaymentModal
-        isOpen={showPaymentComponent}
+        isOpen={!!payment}
         payment={payment}
         onClose={handleCloseModal}
-        onError={handleModalError}
-        onPaymentSuccess={handlePaymentSuccess}
       />
     </div>
   );
