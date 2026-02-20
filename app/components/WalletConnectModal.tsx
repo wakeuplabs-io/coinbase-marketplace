@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
 import { useConnect, useConnectors } from "wagmi";
 
 interface WalletOption {
@@ -56,7 +57,13 @@ export default function WalletConnectModal({
     null
   );
 
-  if (!isOpen) return null;
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
+
+  if (!isOpen || !mounted) return null;
 
   const handleConnect = (connectorId: string) => {
     const connector = connectors.find((c) => c.id === connectorId);
@@ -71,10 +78,8 @@ export default function WalletConnectModal({
       (WALLET_ORDER[a.id] ?? 99) - (WALLET_ORDER[b.id] ?? 99)
   );
 
-  console.log(connectors);
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+  const modalContent = (
+    <div className="fixed inset-0 z-9999 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <div className="relative w-full max-w-sm bg-white rounded-2xl shadow-xl">
         <div className="flex items-center justify-between px-5 py-4 border-b border-[#e2e4e9]">
           <h2 className="text-lg font-semibold text-[#0a0b0d]">
@@ -149,4 +154,6 @@ export default function WalletConnectModal({
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }
