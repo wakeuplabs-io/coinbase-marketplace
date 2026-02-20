@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter } from "next/navigation";
 
 import { useCart } from "@/app/context/CartContext";
@@ -448,5 +448,13 @@ function CheckoutContent() {
 }
 
 export default function CheckoutPage() {
-  return <CheckoutContent />;
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="animate-pulse text-sm text-[#4a5568]">Loading checkout...</div>
+      </div>
+    }>
+      <CheckoutContent />
+    </Suspense>
+  );
 }
