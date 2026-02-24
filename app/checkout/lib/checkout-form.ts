@@ -6,12 +6,12 @@ export const checkoutFormSchema = z.object({
     .string()
     .min(1, "Email is required")
     .email("Please enter a valid email address"),
-  country: z.string().min(1, "Country is required"),
-  address: z.string().min(1, "Address is required"),
+  country: z.string().optional(),
+  address: z.string().optional(),
   apartment: z.string().optional(),
-  city: z.string().min(1, "City is required"),
-  state: z.string().min(1, "State is required"),
-  zip: z.string().min(1, "ZIP code is required"),
+  city: z.string().optional(),
+  state: z.string().optional(),
+  zip: z.string().optional(),
 });
 
 export type CheckoutFormData = z.infer<typeof checkoutFormSchema>;

@@ -4,7 +4,6 @@ import { useState } from "react";
 import CoinbaseLogo from "./icons/CoinbaseLogo";
 import BackArrowIcon from "./icons/BackArrowIcon";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useWallet } from "../hooks/useWallet";
 import WalletConnectModal from "./WalletConnectModal";
 
@@ -12,16 +11,17 @@ interface HeaderProps {
   showBackButton?: boolean;
   onBackClick?: () => void;
   showConnectWallet?: boolean;
+  showDemoBadge?: boolean;
 }
 
 export default function Header({
   showBackButton = false,
   onBackClick,
   showConnectWallet = true,
+  showDemoBadge = false,
 }: HeaderProps) {
   const [showConnectModal, setShowConnectModal] = useState(false);
   const { address, isConnected, isLoading, usdcBalance, isLoadingBalance, disconnect } = useWallet();
-  const router = useRouter();
   const LogoLink = showBackButton ? (
     <button
       onClick={onBackClick}
@@ -55,32 +55,16 @@ export default function Header({
     <header className="w-full border-b border-[#e2e4e9]">
       <nav className="max-w-6xl mx-auto px-4 sm:px-5 md:px-8 h-14 sm:h-16 flex items-center justify-between">
         {LogoLink}
+        <div className="flex items-center gap-2">
+        {showDemoBadge && (
+          <span className="px-2.5 py-1 text-xs font-medium bg-[#0052ff]/10 text-[#0052ff] rounded-full">
+            Demo
+          </span>
+        )}
         {showConnectWallet && (
           <>
             {isConnected ? (
               <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => router.push("/orders")}
-                  className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-[#0a0b0d] border border-[#e2e4e9] rounded-xl hover:bg-[#f9fafb] transition-all hover:scale-[1.02] active:scale-[0.98]"
-                  aria-label="View orders"
-                >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-                    />
-                  </svg>
-                  <span className="hidden sm:inline">My Orders</span>
-                  <span className="sm:hidden">Orders</span>
-                </button>
                 <div className="hidden sm:flex flex-col items-end gap-0.5 px-3 py-1.5">
                   <div className="flex items-center gap-2 text-xs font-medium text-[#4a5568]">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
@@ -122,6 +106,7 @@ export default function Header({
             )}
           </>
         )}
+        </div>
       </nav>
 
       <WalletConnectModal

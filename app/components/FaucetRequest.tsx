@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { useFaucet, FaucetToken } from '../hooks/useFaucet';
+import { useFaucet } from '../hooks/useFaucet';
 import { useWallet } from '../hooks/useWallet';
 
 interface FaucetRequestProps {
@@ -12,7 +12,6 @@ interface FaucetRequestProps {
 
 export default function FaucetRequest({ onSuccess, embedded }: FaucetRequestProps) {
   const { address, isConnected, isLoading: isWalletLoading, error: walletError, connect } = useWallet();
-  const [selectedToken, setSelectedToken] = useState<FaucetToken>('usdc');
   const { requestFaucet, isLoading: isFaucetLoading, error: faucetError, reset } = useFaucet();
   const [success, setSuccess] = useState<{ transactionHash: string; explorerUrl: string } | null>(null);
   
@@ -30,7 +29,7 @@ export default function FaucetRequest({ onSuccess, embedded }: FaucetRequestProp
     try {
       const result = await requestFaucet({
         address: address,
-        token: selectedToken,
+        token: 'usdc',
       });
       setSuccess({
         transactionHash: result.transactionHash,
@@ -146,20 +145,6 @@ export default function FaucetRequest({ onSuccess, embedded }: FaucetRequestProp
               </p>
             </div>
 
-            <div>
-              <label htmlFor="token" className="block text-sm font-medium text-[#0a0b0d] mb-2">
-                Select Token
-              </label>
-              <select
-                id="token"
-                value={selectedToken}
-                onChange={(e) => setSelectedToken(e.target.value as FaucetToken)}
-                className="w-full px-4 py-2.5 border border-[#e2e4e9] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0052ff]/20 focus:border-[#0052ff] text-sm bg-white"
-              >
-                <option value="usdc">USDC</option>
-              </select>
-            </div>
-
             {error && (
               <div className="p-3 bg-red-50 border border-red-200 rounded-xl">
                 <p className="text-sm text-red-700">{error}</p>
@@ -171,7 +156,7 @@ export default function FaucetRequest({ onSuccess, embedded }: FaucetRequestProp
               disabled={isLoading || !address}
               className="w-full px-4 py-2.5 bg-[#0052ff] text-white rounded-xl font-medium hover:bg-[#0042cc] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#0052ff]"
             >
-              {isLoading ? 'Requesting...' : `Request ${selectedToken.toUpperCase()}`}
+              {isLoading ? 'Requesting...' : 'Request USDC'}
             </button>
           </div>
         )}

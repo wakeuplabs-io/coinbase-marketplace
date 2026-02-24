@@ -272,6 +272,7 @@ export default function Home() {
               <div className="p-6">
                 <FaucetRequest
                   onSuccess={handleFaucetSuccess}
+                  embedded
                 />
               </div>
             </div>

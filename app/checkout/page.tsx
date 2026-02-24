@@ -79,12 +79,8 @@ function CheckoutContent() {
           showBackButton
           onBackClick={() => router.back()}
           showConnectWallet={false}
+          showDemoBadge
         />
-        <div className="max-w-6xl mx-auto px-5 md:px-8 flex justify-end">
-          <span className="px-2.5 py-1 text-xs font-medium bg-[#0052ff]/10 text-[#0052ff] rounded-full">
-            Demo
-          </span>
-        </div>
       </div>
 
       {/* Main Content */}
@@ -204,11 +200,11 @@ function CheckoutContent() {
 
                 {/* Billing Address Section */}
                 <section>
-                  <h2 className="text-lg font-semibold text-[#0a0b0d] mb-4">Billing address</h2>
+                  <h2 className="text-lg font-semibold text-[#0a0b0d] mb-4">Billing address <span className="text-[#9ca3af] font-normal">(optional)</span></h2>
                   <div className="space-y-4">
                     <div>
                       <label htmlFor="country" className="block text-sm text-[#4a5568] mb-2">
-                        Country
+                        Country <span className="text-[#9ca3af]">(optional)</span>
                       </label>
                       <input
                         type="text"
@@ -227,7 +223,7 @@ function CheckoutContent() {
                     </div>
                     <div>
                       <label htmlFor="address" className="block text-sm text-[#4a5568] mb-2">
-                        Address
+                        Address <span className="text-[#9ca3af]">(optional)</span>
                       </label>
                       <input
                         type="text"
@@ -259,7 +255,7 @@ function CheckoutContent() {
                     <div className="grid grid-cols-3 gap-4">
                       <div>
                         <label htmlFor="city" className="block text-sm text-[#4a5568] mb-2">
-                          City
+                          City <span className="text-[#9ca3af]">(optional)</span>
                         </label>
                         <input
                           type="text"
@@ -278,7 +274,7 @@ function CheckoutContent() {
                       </div>
                       <div>
                         <label htmlFor="state" className="block text-sm text-[#4a5568] mb-2">
-                          State
+                          State <span className="text-[#9ca3af]">(optional)</span>
                         </label>
                         <input
                           type="text"
@@ -297,7 +293,7 @@ function CheckoutContent() {
                       </div>
                       <div>
                         <label htmlFor="zip" className="block text-sm text-[#4a5568] mb-2">
-                          ZIP code
+                          ZIP code <span className="text-[#9ca3af]">(optional)</span>
                         </label>
                         <input
                           type="text"
@@ -447,6 +443,7 @@ function CheckoutContent() {
               <div className="p-6">
                 <FaucetRequest
                   onSuccess={() => setShowFaucetModal(false)}
+                  embedded
                 />
               </div>
             </div>
