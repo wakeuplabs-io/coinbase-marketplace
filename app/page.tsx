@@ -76,8 +76,7 @@ export default function Home() {
           {/* Left Column - Copy */}
           <div className="order-1 w-full">
             <h1 className="text-[34px] leading-[1.15] sm:text-4xl lg:text-5xl font-semibold tracking-tight text-[#0a0b0d] lg:leading-tight animate-fade-in-up text-center lg:text-left">
-              Pay with crypto or card.
-              <span className="instantly-shimmer"> Instantly.</span>
+              Pay with Stablecoins. Borderless. 24/7.<span className="instantly-shimmer"> Instant.</span>
             </h1>
             <p className="mt-3 sm:mt-4 lg:mt-6 text-[15px] sm:text-base lg:text-lg text-[#4a5568] leading-relaxed animate-fade-in-up delay-100 text-center lg:text-left">
               Shop securely using any crypto payment method.
