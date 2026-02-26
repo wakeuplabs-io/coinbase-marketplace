@@ -80,8 +80,8 @@ export default function Home() {
               <span className="instantly-shimmer"> Instantly.</span>
             </h1>
             <p className="mt-3 sm:mt-4 lg:mt-6 text-[15px] sm:text-base lg:text-lg text-[#4a5568] leading-relaxed animate-fade-in-up delay-100 text-center lg:text-left">
-              Shop securely using crypto, cards, or bank transfers. Set up your
-              wallet in minutes and explore the marketplace.
+              Shop securely using any crypto payment method.
+              Set up your wallet in minutes and explore the marketplace.
             </p>
 
             {/* Secondary CTA - Desktop only */}

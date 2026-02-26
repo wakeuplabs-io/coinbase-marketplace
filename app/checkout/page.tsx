@@ -9,7 +9,7 @@ import Header from "@/app/components/Header";
 import ProductIcon from "@/app/components/ProductIcon";
 import {
   CreditCardLogos,
-  ShopPayLogo,
+  PayPalLogo,
   CryptoWalletIcons,
 } from "@/app/components/PaymentIcons";
 import { formatPrice } from "@/app/lib/utils";
@@ -84,18 +84,18 @@ function CheckoutContent() {
       </div>
 
       {/* Main Content */}
-      <main className="flex-1 px-5 md:px-8 py-8 lg:py-12 pt-24 lg:pt-28">
+      <main className="flex-1 px-5 md:px-8 py-6 lg:py-10 pt-24 lg:pt-28">
         <div className="max-w-6xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10">
               {/* Left Column - Checkout Form */}
               <div className="order-2 lg:order-1">
-                <form onSubmit={handleSubmit(submitOrder)} className="space-y-8">
+                <form onSubmit={handleSubmit(submitOrder)} className="space-y-6">
                 {/* Contact Section */}
                 <section>
-                  <h2 className="text-lg font-semibold text-[#0a0b0d] mb-4">Contact</h2>
-                  <div className="space-y-4">
+                  <h2 className="text-lg font-semibold text-[#0a0b0d] mb-3">Contact</h2>
+                  <div className="space-y-3">
                     <div>
-                      <label htmlFor="full-name" className="block text-sm text-[#4a5568] mb-2">
+                      <label htmlFor="full-name" className="block text-sm text-[#4a5568] mb-1.5">
                         Full Name
                       </label>
                       <input
@@ -114,7 +114,7 @@ function CheckoutContent() {
                       )}
                     </div>
                     <div>
-                      <label htmlFor="email" className="block text-sm text-[#4a5568] mb-2">
+                      <label htmlFor="email" className="block text-sm text-[#4a5568] mb-1.5">
                         Email
                       </label>
                       <input
@@ -138,9 +138,9 @@ function CheckoutContent() {
                 {/* Payment Section */}
                 <section>
                   <h2 className="text-lg font-semibold text-[#0a0b0d] mb-2">Payment</h2>
-                  <p className="text-sm text-[#4a5568] mb-6">All transactions are secure and encrypted.</p>
+                  <p className="text-sm text-[#4a5568] mb-4">All transactions are secure and encrypted.</p>
 
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {/* Credit Card - Disabled */}
                     <label className="flex items-start gap-3 p-4 bg-[#f9fafb] border border-[#e2e4e9] rounded-xl cursor-not-allowed opacity-50 grayscale">
                       <input
@@ -159,19 +159,19 @@ function CheckoutContent() {
                       </div>
                     </label>
 
-                    {/* Shop Pay - Disabled */}
+                    {/* PayPal - Disabled */}
                     <label className="flex items-center gap-3 p-4 bg-[#f9fafb] border border-[#e2e4e9] rounded-xl cursor-not-allowed opacity-50 grayscale">
                       <input
                         type="radio"
                         name="payment"
-                        value="shop"
+                        value="paypal"
                         checked={false}
                         disabled
                         className="mt-0.5"
                       />
                       <div className="flex-1 flex items-center justify-between">
-                        <span className="text-sm font-medium text-[#0a0b0d]">Shop Pay • Pay in full or in installments</span>
-                        <ShopPayLogo />
+                        <span className="text-sm font-medium text-[#0a0b0d]">PayPal</span>
+                        <PayPalLogo />
                       </div>
                     </label>
 
@@ -187,7 +187,7 @@ function CheckoutContent() {
                       />
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-sm font-medium text-[#0a0b0d]">Crypto: USDC</span>
+                          <span className="text-sm font-medium text-[#0a0b0d]">Stablecoin</span>
                           <CryptoWalletIcons />
                         </div>
                         <div className="mt-1">
@@ -195,122 +195,6 @@ function CheckoutContent() {
                         </div>
                       </div>
                     </label>
-                  </div>
-                </section>
-
-                {/* Billing Address Section */}
-                <section>
-                  <h2 className="text-lg font-semibold text-[#0a0b0d] mb-4">Billing address <span className="text-[#9ca3af] font-normal">(optional)</span></h2>
-                  <div className="space-y-4">
-                    <div>
-                      <label htmlFor="country" className="block text-sm text-[#4a5568] mb-2">
-                        Country <span className="text-[#9ca3af]">(optional)</span>
-                      </label>
-                      <input
-                        type="text"
-                        id="country"
-                        {...register("country")}
-                        className={`w-full px-4 py-3 bg-[#f9fafb] border rounded-xl text-[#0a0b0d] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 transition-all ${
-                          errors.country
-                            ? "border-red-500 focus:ring-red-500/20 focus:border-red-500"
-                            : "border-[#e2e4e9] focus:ring-[#0052ff]/20 focus:border-[#0052ff]"
-                        }`}
-                        placeholder="Country"
-                      />
-                      {errors.country && (
-                        <p className="mt-1 text-sm text-red-600">{errors.country.message}</p>
-                      )}
-                    </div>
-                    <div>
-                      <label htmlFor="address" className="block text-sm text-[#4a5568] mb-2">
-                        Address <span className="text-[#9ca3af]">(optional)</span>
-                      </label>
-                      <input
-                        type="text"
-                        id="address"
-                        {...register("address")}
-                        className={`w-full px-4 py-3 bg-[#f9fafb] border rounded-xl text-[#0a0b0d] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 transition-all ${
-                          errors.address
-                            ? "border-red-500 focus:ring-red-500/20 focus:border-red-500"
-                            : "border-[#e2e4e9] focus:ring-[#0052ff]/20 focus:border-[#0052ff]"
-                        }`}
-                        placeholder="Address"
-                      />
-                      {errors.address && (
-                        <p className="mt-1 text-sm text-red-600">{errors.address.message}</p>
-                      )}
-                    </div>
-                    <div>
-                      <label htmlFor="apartment" className="block text-sm text-[#4a5568] mb-2">
-                        Apartment, suite, etc. <span className="text-[#9ca3af]">(optional)</span>
-                      </label>
-                      <input
-                        type="text"
-                        id="apartment"
-                        {...register("apartment")}
-                        className="w-full px-4 py-3 bg-[#f9fafb] border border-[#e2e4e9] rounded-xl text-[#0a0b0d] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#0052ff]/20 focus:border-[#0052ff] transition-all"
-                        placeholder="Apartment, suite, etc."
-                      />
-                    </div>
-                    <div className="grid grid-cols-3 gap-4">
-                      <div>
-                        <label htmlFor="city" className="block text-sm text-[#4a5568] mb-2">
-                          City <span className="text-[#9ca3af]">(optional)</span>
-                        </label>
-                        <input
-                          type="text"
-                          id="city"
-                          {...register("city")}
-                          className={`w-full px-4 py-3 bg-[#f9fafb] border rounded-xl text-[#0a0b0d] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 transition-all ${
-                            errors.city
-                              ? "border-red-500 focus:ring-red-500/20 focus:border-red-500"
-                              : "border-[#e2e4e9] focus:ring-[#0052ff]/20 focus:border-[#0052ff]"
-                          }`}
-                          placeholder="City"
-                        />
-                        {errors.city && (
-                          <p className="mt-1 text-sm text-red-600">{errors.city.message}</p>
-                        )}
-                      </div>
-                      <div>
-                        <label htmlFor="state" className="block text-sm text-[#4a5568] mb-2">
-                          State <span className="text-[#9ca3af]">(optional)</span>
-                        </label>
-                        <input
-                          type="text"
-                          id="state"
-                          {...register("state")}
-                          className={`w-full px-4 py-3 bg-[#f9fafb] border rounded-xl text-[#0a0b0d] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 transition-all ${
-                            errors.state
-                              ? "border-red-500 focus:ring-red-500/20 focus:border-red-500"
-                              : "border-[#e2e4e9] focus:ring-[#0052ff]/20 focus:border-[#0052ff]"
-                          }`}
-                          placeholder="State"
-                        />
-                        {errors.state && (
-                          <p className="mt-1 text-sm text-red-600">{errors.state.message}</p>
-                        )}
-                      </div>
-                      <div>
-                        <label htmlFor="zip" className="block text-sm text-[#4a5568] mb-2">
-                          ZIP code <span className="text-[#9ca3af]">(optional)</span>
-                        </label>
-                        <input
-                          type="text"
-                          id="zip"
-                          {...register("zip")}
-                          className={`w-full px-4 py-3 bg-[#f9fafb] border rounded-xl text-[#0a0b0d] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 transition-all ${
-                            errors.zip
-                              ? "border-red-500 focus:ring-red-500/20 focus:border-red-500"
-                              : "border-[#e2e4e9] focus:ring-[#0052ff]/20 focus:border-[#0052ff]"
-                          }`}
-                          placeholder="ZIP code"
-                        />
-                        {errors.zip && (
-                          <p className="mt-1 text-sm text-red-600">{errors.zip.message}</p>
-                        )}
-                      </div>
-                    </div>
                   </div>
                 </section>
 
@@ -347,11 +231,11 @@ function CheckoutContent() {
                 <button
                   type="submit"
                   disabled={isLoading || isPreparingPayment || insufficientFunds}
-                  className="w-full px-5 py-3.5 bg-[#0a0b0d] text-white rounded-xl text-sm font-semibold hover:bg-[#1a1b1d] transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  className="w-full mb-3 px-5 py-3 bg-[#0a0b0d] text-white rounded-xl text-sm font-semibold hover:bg-[#1a1b1d] transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                 >
                   {(isLoading || isPreparingPayment) ? "Processing..." : "Pay now"}
                 </button>
-                <p className="mt-1.5 text-xs text-[#4a5568] text-center">
+                <p className="text-xs text-[#4a5568] text-center">
                   Remember to pay with the previously connected wallet.
                 </p>
               </form>
@@ -360,8 +244,8 @@ function CheckoutContent() {
               {/* Right Column - Order Summary */}
               <div className="order-1 lg:order-2">
               <div className="lg:sticky lg:top-24">
-                <h2 className="text-lg font-semibold text-[#0a0b0d] mb-6">Order summary</h2>
-                <div className="space-y-4">
+                <h2 className="text-lg font-semibold text-[#0a0b0d] mb-4">Order summary</h2>
+                <div className="space-y-3">
                   {items.length === 0 ? (
                     <p className="text-sm text-[#4a5568]">Your cart is empty</p>
                   ) : (
@@ -382,7 +266,7 @@ function CheckoutContent() {
                           </div>
                         </div>
                       ))}
-                      <div className="pt-4 border-t border-[#e2e4e9]">
+                      <div className="pt-3 border-t border-[#e2e4e9]">
                         <div className="flex items-center justify-between">
                           <span className="text-sm font-semibold text-[#0a0b0d]">Total</span>
                           <div className="flex items-center gap-2">

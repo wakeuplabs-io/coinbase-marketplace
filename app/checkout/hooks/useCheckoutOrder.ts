@@ -57,23 +57,12 @@ export function useCheckoutOrder() {
         });
 
         setWeb3FormsResult("");
-        const billingParts = [
-          formData.address,
-          formData.apartment,
-          formData.city,
-          formData.state,
-          formData.zip,
-          formData.country,
-        ].filter(Boolean) as string[];
-        const billingLine = billingParts.length > 0 ? `Billing: ${billingParts.join(", ")}` : "Billing: —";
         const orderMessage = [
           `Order Summary:`,
           ...items.map(
             (i) => `- ${i.name} x${i.quantity}: $${(i.price * i.quantity).toFixed(2)}`
           ),
           `Total: $${subtotal.toFixed(2)}`,
-          ``,
-          billingLine,
         ].join("\n");
 
         const web3FormData = new FormData();

@@ -33,6 +33,7 @@ function getPaymentConfig() {
     paymentTokenContractAddress: "0x589d902681335F655E5C47B2B24E15062cC37FfB",
     feeBps: 0,
     feeReceiver: env.COINBASE_PAYMENTS_RECEIVER,
+    merchantName: 'Coinbase Marketplace',
   };
 }
 

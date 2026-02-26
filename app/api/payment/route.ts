@@ -31,6 +31,9 @@ export async function POST(request: Request) {
 
     const result = await paymentServiceInstance.createPaymentLink({
       ...createPaymentLinkParams,
+      merchant: createPaymentLinkParams.merchant?.name
+        ? createPaymentLinkParams.merchant
+        : { name: paymentConfig.merchantName },
       networkId: paymentConfig.networkId,
       receiver: paymentConfig.receiver,
       token: paymentConfig.token,

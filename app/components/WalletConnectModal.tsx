@@ -131,46 +131,48 @@ export default function WalletConnectModal({
   );
 
   const modalContent = (
-    <div className="fixed inset-0 z-9999 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="relative w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden">
-        {/* Header: icon + title, close */}
-        <div className="flex items-center justify-between px-5 pt-5 pb-4">
+    <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-backdrop">
+      <div className="relative w-full max-w-md bg-white rounded-2xl border border-[#e2e4e9] shadow-sm overflow-hidden animate-fade-in-up">
+        {/* Header: icon + title, close X */}
+        <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-[#e2e4e9]">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-[#0052ff] flex items-center justify-center shrink-0">
               <span className="text-white font-bold text-lg">C</span>
             </div>
-            <h2 className="text-lg font-bold text-[#0a0b0d]">
+            <h2 className="text-lg font-bold text-[#0a0b0d] tracking-tight">
               Connect Wallet
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="p-2 -mr-2 hover:bg-[#f5f5f5] rounded-full transition-colors"
-            aria-label="Close"
+            className="p-2 -mr-2 hover:bg-[#f9fafb] rounded-lg transition-colors"
+            aria-label="Close modal"
           >
             <svg
               className="w-5 h-5 text-[#4a5568]"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden
             >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
-        {/* Base app on mobile - light blue section */}
-        <div className="mx-5 mb-4 p-4 rounded-xl bg-[#eff6ff] border border-[#bfdbfe]">
-          <p className="text-sm text-[#0a0b0d]">Using Base app on mobile?</p>
-          <p className="text-sm text-[#6b7280] mt-0.5">Open this page in the Base app to connect automatically.</p>
+        {/* Base app on mobile — banner */}
+        <div className="mx-5 mt-4 p-4 rounded-xl bg-[#eff6ff] border border-[#bfdbfe]">
+          <p className="text-sm text-[#0a0b0d]">
+            Using Base app on mobile? Open this page in the Base app to connect automatically.
+          </p>
         </div>
 
         {/* Choose a Wallet */}
-        <div className="px-5 pb-5">
-          <h3 className="text-base font-semibold text-[#0a0b0d]">Choose a Wallet</h3>
-          <p className="text-sm text-[#6b7280] mt-0.5">Select your preferred wallet to access the Base ecosystem</p>
+        <div className="px-5 py-4 pb-5">
+          <h3 className="text-base font-semibold text-[#0a0b0d] tracking-tight">Choose a Wallet</h3>
+          <p className="text-sm text-[#4a5568] mt-1">Select your preferred wallet to access the Base ecosystem</p>
 
-          <div className="mt-4 space-y-1">
+          <div className="mt-4 space-y-0.5">
             {sortedConnectors.map((connector) => {
               const option = getWalletOption(connector.id, connector.name);
               const isConnecting = isPending && selectedConnector === connector.id;
@@ -187,9 +189,9 @@ export default function WalletConnectModal({
                     {option.label}
                   </span>
                   {isConnecting ? (
-                    <span className="text-xs text-[#6b7280]">Connecting...</span>
+                    <span className="text-xs text-[#4a5568]">Connecting...</span>
                   ) : (
-                    <svg className="w-5 h-5 text-[#9ca3af]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                    <svg className="w-5 h-5 text-[#4a5568]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                   )}
@@ -199,13 +201,13 @@ export default function WalletConnectModal({
           </div>
 
           {/* Footer link */}
-          <p className="mt-5 pt-4 border-t border-[#e2e4e9] text-center text-sm text-[#6b7280]">
+          <p className="mt-5 pt-4 border-t border-[#e2e4e9] text-center text-sm text-[#4a5568]">
             New to crypto?{" "}
             <a
               href={LEARN_MORE_WALLETS_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="font-medium text-[#0052ff] hover:text-[#0041cc] hover:underline transition-colors"
+              className="font-medium text-[#0052ff] hover:text-[#0042cc] hover:underline transition-colors"
             >
               Learn more about wallets
             </a>

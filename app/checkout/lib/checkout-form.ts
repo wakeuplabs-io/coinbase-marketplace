@@ -6,12 +6,6 @@ export const checkoutFormSchema = z.object({
     .string()
     .min(1, "Email is required")
     .email("Please enter a valid email address"),
-  country: z.string().optional(),
-  address: z.string().optional(),
-  apartment: z.string().optional(),
-  city: z.string().optional(),
-  state: z.string().optional(),
-  zip: z.string().optional(),
 });
 
 export type CheckoutFormData = z.infer<typeof checkoutFormSchema>;
@@ -19,12 +13,6 @@ export type CheckoutFormData = z.infer<typeof checkoutFormSchema>;
 export const FORM_PARAM_KEYS = [
   "full-name",
   "email",
-  "country",
-  "address",
-  "apartment",
-  "city",
-  "state",
-  "zip",
 ] as const;
 
 export function getFormDefaultsFromSearchParams(

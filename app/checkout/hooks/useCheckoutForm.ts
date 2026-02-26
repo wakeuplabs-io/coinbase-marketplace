@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useCallback } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useForm, UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -16,7 +16,6 @@ export function useCheckoutForm(): Pick<
   UseFormReturn<CheckoutFormData>,
   "register" | "handleSubmit" | "watch" | "formState"
 > {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const formDefaults = getFormDefaultsFromSearchParams(searchParams);
 
@@ -25,26 +24,23 @@ export function useCheckoutForm(): Pick<
     defaultValues: {
       "full-name": formDefaults["full-name"] ?? "",
       email: formDefaults.email ?? "",
-      country: formDefaults.country ?? "",
-      address: formDefaults.address ?? "",
-      apartment: formDefaults.apartment ?? "",
-      city: formDefaults.city ?? "",
-      state: formDefaults.state ?? "",
-      zip: formDefaults.zip ?? "",
     },
   });
 
   const { watch } = form;
 
-  const updateQueryParams = useCallback(
-    (data: Partial<CheckoutFormData>) => {
-      const params = formDataToSearchParams(data);
-      const query = params.toString();
-      const url = query ? `/checkout?${query}` : "/checkout";
-      router.replace(url, { scroll: false });
-    },
-    [router]
-  );
+  const updateQueryParams = useCallback((data: Partial<CheckoutFormData>) => {
+    const params = formDataToSearchParams(data);
+    const query = params.toString();
+    const newPath = query ? `/checkout?${query}` : "/checkout";
+    const currentPath =
+      typeof window !== "undefined"
+        ? window.location.pathname + window.location.search
+        : "";
+    if (newPath !== currentPath) {
+      window.history.replaceState(null, "", newPath);
+    }
+  }, []);
 
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout>;

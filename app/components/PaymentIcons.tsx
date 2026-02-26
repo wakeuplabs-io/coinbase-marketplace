@@ -21,14 +21,13 @@ export function CreditCardLogos() {
   );
 }
 
-export function ShopPayLogo() {
+export function PayPalLogo() {
   return (
-    <div
-      className="text-[#5a31f4] font-bold text-lg tracking-tight"
-      style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}
-    >
-      shop
-    </div>
+    <img
+      src="/payment-icons/paypal-logo.png"
+      alt="PayPal"
+      className="h-5 w-auto"
+    />
   );
 }
 

@@ -393,6 +393,35 @@ a[href] {
   }
 }
 
+/* Coinbase payment embed — design system tokens (Embedded UI CSS custom properties) */
+.payment-modal-embed coinbase-payment {
+  --cb-color-background-primary: var(--background);
+  --cb-color-background-secondary: var(--card-bg);
+  --cb-color-text-primary: var(--foreground);
+  --cb-color-button-primary: var(--accent);
+  --cb-color-button-primary-hover: #0042cc;
+  --cb-color-button-primary-text: #ffffff;
+  --cb-border-radius-button-primary: 12px;
+  --cb-color-border-primary: var(--border);
+  --cb-typography-header-font-family: "Inter", var(--font-inter), sans-serif;
+  --cb-typography-body-font-family: "Inter", var(--font-inter), sans-serif;
+}
+
+/* Wallet list: una columna (uno debajo del otro) en lugar de grid */
+.payment-modal-embed coinbase-payment [class*="grid"],
+.payment-modal-embed coinbase-payment [class*="wallet-grid"],
+.payment-modal-embed coinbase-payment [class*="WalletGrid"] {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+}
+.payment-modal-embed coinbase-payment [class*="grid"] > *,
+.payment-modal-embed coinbase-payment [class*="wallet-grid"] > *,
+.payment-modal-embed coinbase-payment [class*="WalletGrid"] > * {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
 /* 19. Enhanced button press effect */
 @media (max-width: 1023px) {
   .touch-manipulation:active {
