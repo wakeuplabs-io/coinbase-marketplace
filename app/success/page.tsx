@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import Header from "@/app/components/Header";
 import { useCart } from "@/app/context/CartContext";
 import { formatPrice } from "@/app/lib/utils";
@@ -29,7 +29,7 @@ interface PaymentInfo {
   currency?: string;
 }
 
-export default function SuccessPage() {
+function SuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const paymentId = searchParams.get("paymentId");
@@ -206,5 +206,19 @@ export default function SuccessPage() {
         </section>
       </main>
     </div>
+  );
+}
+
+export default function SuccessPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-[#f9fafb]">
+          <div className="w-8 h-8 border-2 border-[#0052ff] border-t-transparent rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <SuccessContent />
+    </Suspense>
   );
 }
