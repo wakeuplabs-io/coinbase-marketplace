@@ -33,12 +33,17 @@ interface CoinbasePaymentElement extends HTMLElement {
   back: () => void;
 }
 
+export interface CompletedEventDetail {
+  paymentId?: string;
+  status?: string;
+}
+
 interface PaymentModalProps {
   isOpen: boolean;
   payment: PaymentLink | null;
   isLoading?: boolean;
   onClose: () => void;
-  onPaymentSuccess?: (payment: PaymentLink) => void;
+  onPaymentSuccess?: (payment: PaymentLink, eventDetail: CompletedEventDetail) => void;
 }
 
 export default function PaymentModal({
@@ -67,9 +72,10 @@ export default function PaymentModal({
   
       const handleCompleted = (event: Event) => {
         const customEvent = event as CustomEvent;
-        console.log('[coinbase-payment] completed event:', customEvent.detail);
-        if (customEvent.detail?.status === 'success' && payment) {
-          onPaymentSuccess?.(payment);
+        const detail = customEvent.detail as CompletedEventDetail | undefined;
+        console.log('[coinbase-payment] completed event:', detail);
+        if (detail?.status === 'success' && payment) {
+          onPaymentSuccess?.(payment, detail ?? {});
           onClose();
         }
       };

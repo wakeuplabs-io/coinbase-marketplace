@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
+import type { CompletedEventDetail } from "@/app/checkout/paymentModal";
 import { useCart } from "@/app/context/CartContext";
 import { usePayment } from "@/app/hooks/usePayment";
 import { useCheckoutFunds } from "@/app/checkout/hooks/useCheckoutFunds";
@@ -124,18 +125,20 @@ export function useCheckoutOrder() {
   }, []);
 
   const handlePaymentSuccess = useCallback(
-    (payment?: PaymentLink | null) => {
+    (payment?: PaymentLink | null, eventDetail?: CompletedEventDetail) => {
+      const paymentId = eventDetail?.paymentId ?? payment?.id;
       if (items.length > 0 && customerInfo) {
         saveCompletedOrder({
           items: [...items],
           subtotal,
           customerName: customerInfo.name,
           customerEmail: customerInfo.email,
-          paymentId: payment?.id,
+          paymentId: paymentId ?? payment?.id,
           paymentUrl: payment?.url,
         });
       }
-      router.push("/success");
+      const params = paymentId ? `?paymentId=${encodeURIComponent(paymentId)}` : "";
+      router.push(`/success${params}`);
     },
     [items, subtotal, customerInfo, saveCompletedOrder, router]
   );

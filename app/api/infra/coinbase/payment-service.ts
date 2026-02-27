@@ -30,6 +30,14 @@ export interface PaymentLink {
   createdAt: string;
   expiresAt?: string;
   status: string;
+  amount?: string;
+  currency?: string;
+  transactionHash?: string;
+  settlement?: {
+    totalAmount?: string;
+    feeAmount?: string;
+    netAmount?: string;
+  };
 }
 
 export interface CreatePaymentLinkResult {
@@ -56,13 +64,15 @@ export class PaymentService extends CoinbaseClient {
     }
   }
 
-  async getPaymentLink(paymentLinkId: string): Promise<PaymentLink> {
+  async getPaymentLink(paymentLinkId: string): Promise<PaymentLink & Record<string, unknown>> {
     try {
-      const response = await super.makeRequest<{ data: PaymentLink }>('GET',
-        `/api/v1/payments/${paymentLinkId}`,
-      );
+      const response = await super.makeRequest('GET', `/api/v1/payments/${paymentLinkId}`);
 
-      return response.data;
+      const payment =
+        (response as { data?: unknown }).data ??
+        (response as { payment?: unknown }).payment ??
+        response;
+      return payment as PaymentLink & Record<string, unknown>;
     } catch (error) {
       console.error('Failed to get payment link:', error);
       throw new Error(
