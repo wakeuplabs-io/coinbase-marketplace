@@ -22,6 +22,8 @@ export interface CompletedOrder {
   completedAt: string;
   customerName?: string;
   customerEmail?: string;
+  paymentId?: string;
+  paymentUrl?: string;
 }
 
 interface CartContextType {

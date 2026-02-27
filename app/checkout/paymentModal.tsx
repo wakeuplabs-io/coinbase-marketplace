@@ -38,7 +38,7 @@ interface PaymentModalProps {
   payment: PaymentLink | null;
   isLoading?: boolean;
   onClose: () => void;
-  onPaymentSuccess?: () => void;
+  onPaymentSuccess?: (payment: PaymentLink) => void;
 }
 
 export default function PaymentModal({
@@ -67,8 +67,9 @@ export default function PaymentModal({
   
       const handleCompleted = (event: Event) => {
         const customEvent = event as CustomEvent;
-        if (customEvent.detail?.status === 'success') {
-          onPaymentSuccess?.();
+        console.log('[coinbase-payment] completed event:', customEvent.detail);
+        if (customEvent.detail?.status === 'success' && payment) {
+          onPaymentSuccess?.(payment);
           onClose();
         }
       };

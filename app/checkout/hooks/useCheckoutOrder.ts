@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 
 import { useCart } from "@/app/context/CartContext";
 import { usePayment } from "@/app/hooks/usePayment";
@@ -10,7 +11,16 @@ import type { CheckoutFormData } from "@/app/checkout/lib/checkout-form";
 
 const WEB3FORMS_ACCESS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY;
 
+interface PaymentLink {
+  id: string;
+  url: string;
+  createdAt: string;
+  expiresAt?: string;
+  status: string;
+}
+
 export function useCheckoutOrder() {
+  const router = useRouter();
   const { items, subtotal, saveCompletedOrder } = useCart();
   const { payment, isLoading, error, createPayment, reset } = usePayment();
   const {
@@ -113,16 +123,22 @@ export function useCheckoutOrder() {
     setModalError(errorMsg);
   }, []);
 
-  const handlePaymentSuccess = useCallback(() => {
-    if (items.length > 0 && customerInfo) {
-      saveCompletedOrder({
-        items: [...items],
-        subtotal,
-        customerName: customerInfo.name,
-        customerEmail: customerInfo.email,
-      });
-    }
-  }, [items, subtotal, customerInfo, saveCompletedOrder]);
+  const handlePaymentSuccess = useCallback(
+    (payment?: PaymentLink | null) => {
+      if (items.length > 0 && customerInfo) {
+        saveCompletedOrder({
+          items: [...items],
+          subtotal,
+          customerName: customerInfo.name,
+          customerEmail: customerInfo.email,
+          paymentId: payment?.id,
+          paymentUrl: payment?.url,
+        });
+      }
+      router.push("/success");
+    },
+    [items, subtotal, customerInfo, saveCompletedOrder, router]
+  );
 
   return {
     submitOrder,
