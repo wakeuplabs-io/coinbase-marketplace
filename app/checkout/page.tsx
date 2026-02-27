@@ -69,7 +69,7 @@ function CheckoutContent() {
     <div className="min-h-screen flex flex-col bg-white">
       {/* Load Coinbase payment script on checkout mount so it's ready when user clicks Pay */}
       <Script
-        src="https://payments.coinbase.com/payments/components/v1/payment-link.mjs"
+        src="https://payments.coinbase.com/sandbox/payments/components/v1/payment-link.mjs"
         strategy="afterInteractive"
         type="module"
         crossOrigin="anonymous"
