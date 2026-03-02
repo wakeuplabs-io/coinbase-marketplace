@@ -8,6 +8,7 @@ interface WalletOption {
   id: string;
   label: string;
   iconType: "base" | "walletconnect" | "metamask" | "browser" | "rabby" | "default";
+  description: string;
 }
 
 interface WalletConnectModalProps {
@@ -24,58 +25,49 @@ const WALLET_ORDER: Record<string, number> = {
 
 function getWalletOption(connectorId: string, connectorName: string): WalletOption {
   if (connectorId.includes("coinbase") || connectorId === "coinbaseWalletSDK") {
-    return { id: connectorId, label: "Base Wallet", iconType: "base" };
+    return { id: connectorId, label: "Base Wallet", iconType: "base", description: "Connect using the Base Wallet app on mobile or desktop" };
   }
   if (connectorId === "walletConnect") {
-    return { id: connectorId, label: "WalletConnect", iconType: "walletconnect" };
+    return { id: connectorId, label: "WalletConnect", iconType: "walletconnect", description: "Scan with any WalletConnect compatible wallet to connect" };
   }
   if (connectorId.includes("metaMask") || connectorName.toLowerCase().includes("metamask")) {
-    return { id: connectorId, label: "MetaMask", iconType: "metamask" };
+    return { id: connectorId, label: "MetaMask", iconType: "metamask", description: "Connect using the MetaMask browser extension" };
   }
   if (connectorId.includes("injected")) {
-    return { id: connectorId, label: "Browser Wallet", iconType: "browser" };
+    return { id: connectorId, label: "Browser Wallet", iconType: "browser", description: "Connect using your browser's built-in wallet" };
   }
   if (connectorName.toLowerCase().includes("rabby")) {
-    return { id: connectorId, label: "Rabby Wallet", iconType: "rabby" };
+    return { id: connectorId, label: "Rabby Wallet", iconType: "rabby", description: "Connect using the Rabby Wallet browser extension" };
   }
-  return { id: connectorId, label: connectorName, iconType: "default" };
+  return { id: connectorId, label: connectorName, iconType: "default", description: "Connect using this wallet" };
 }
 
-function WalletIcon({ type }: { type: WalletOption["iconType"] }) {
-  const baseClass = "w-9 h-9 rounded-lg flex items-center justify-center shrink-0";
+function WalletIcon({ type, size = "md" }: { type: WalletOption["iconType"]; size?: "md" | "lg" }) {
+  const sizeClass = size === "lg" ? "w-16 h-16 rounded-2xl" : "w-9 h-9 rounded-lg";
+  const baseClass = `${sizeClass} flex items-center justify-center shrink-0`;
   switch (type) {
     case "base":
       return (
-        <div className={`${baseClass} bg-[#0052ff]`}>
-          <span className="text-white font-bold text-sm">B</span>
+        <div className={`${baseClass} overflow-hidden bg-white border border-[#e2e4e9] p-0.5`}>
+          <img src="/base-app-logo.png" alt="" className="w-full h-full object-contain" aria-hidden />
         </div>
       );
     case "walletconnect":
       return (
         <div className={`${baseClass} overflow-hidden bg-white border border-[#e2e4e9] p-1`}>
-          <img
-            src="/walletconnect-logo.png"
-            alt=""
-            className="w-full h-full object-contain"
-            aria-hidden
-          />
+          <img src="/walletconnect-logo.png" alt="" className="w-full h-full object-contain" aria-hidden />
         </div>
       );
     case "metamask":
       return (
         <div className={`${baseClass} overflow-hidden bg-white border border-[#e2e4e9] p-1`}>
-          <img
-            src="/metamask-logo.png"
-            alt=""
-            className="w-full h-full object-contain"
-            aria-hidden
-          />
+          <img src="/metamask-logo.png" alt="" className="w-full h-full object-contain" aria-hidden />
         </div>
       );
     case "browser":
       return (
         <div className={`${baseClass} bg-[#e2e4e9]`}>
-          <svg className="w-5 h-5 text-[#4a5568]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+          <svg className={size === "lg" ? "w-8 h-8" : "w-5 h-5"} style={{ color: "#4a5568" }} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
           </svg>
         </div>
@@ -83,18 +75,13 @@ function WalletIcon({ type }: { type: WalletOption["iconType"] }) {
     case "rabby":
       return (
         <div className={`${baseClass} overflow-hidden bg-white border border-[#e2e4e9] p-1`}>
-          <img
-            src="/rabby-logo.svg"
-            alt=""
-            className="w-full h-full object-contain"
-            aria-hidden
-          />
+          <img src="/rabby-logo.svg" alt="" className="w-full h-full object-contain" aria-hidden />
         </div>
       );
     default:
       return (
         <div className={`${baseClass} bg-[#e2e4e9]`}>
-          <span className="text-[#4a5568] font-medium text-xs">W</span>
+          <span style={{ color: "#4a5568" }} className="font-medium text-xs">W</span>
         </div>
       );
   }
@@ -109,6 +96,7 @@ export default function WalletConnectModal({
   const { connect, isPending } = useConnect();
   const connectors = useConnectors();
   const [selectedConnector, setSelectedConnector] = useState<string | null>(null);
+  const [hoveredConnector, setHoveredConnector] = useState<string | null>(null);
 
   const mounted = useSyncExternalStore(
     () => () => {},
@@ -130,89 +118,110 @@ export default function WalletConnectModal({
     (a, b) => (WALLET_ORDER[a.id] ?? 99) - (WALLET_ORDER[b.id] ?? 99)
   );
 
+  const activeId = hoveredConnector || selectedConnector;
+  const activeConnector = activeId ? sortedConnectors.find((c) => c.id === activeId) : null;
+  const activeOption = activeConnector
+    ? getWalletOption(activeConnector.id, activeConnector.name)
+    : null;
+
   const modalContent = (
     <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-backdrop">
-      <div className="relative w-full max-w-md bg-white rounded-2xl border border-[#e2e4e9] shadow-sm overflow-hidden animate-fade-in-up">
-        {/* Header: icon + title, close X */}
-        <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-[#e2e4e9]">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-[#0052ff] flex items-center justify-center shrink-0">
-              <span className="text-white font-bold text-lg">C</span>
-            </div>
-            <h2 className="text-lg font-bold text-[#0a0b0d] tracking-tight">
-              Connect Wallet
-            </h2>
-          </div>
+      <div className="relative w-full max-w-[560px] bg-white rounded-2xl border border-[#e2e4e9] shadow-sm overflow-hidden animate-fade-in-up">
+
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#e2e4e9]">
+          <h2 className="text-base font-bold text-[#0a0b0d] tracking-tight">
+            Connect a Wallet
+          </h2>
           <button
             onClick={onClose}
             className="p-2 -mr-2 hover:bg-[#f9fafb] rounded-lg transition-colors"
             aria-label="Close modal"
           >
-            <svg
-              className="w-5 h-5 text-[#4a5568]"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden
-            >
+            <svg className="w-5 h-5 text-[#4a5568]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
-        {/* Base app on mobile — banner */}
-        <div className="mx-5 mt-4 p-4 rounded-xl bg-[#eff6ff] border border-[#bfdbfe]">
-          <p className="text-sm text-[#0a0b0d]">
-            Using Base app on mobile? Open this page in the Base app to connect automatically.
-          </p>
-        </div>
+        {/* Two-column body */}
+        <div className="flex min-h-[360px]">
 
-        {/* Choose a Wallet */}
-        <div className="px-5 py-4 pb-5">
-          <h3 className="text-base font-semibold text-[#0a0b0d] tracking-tight">Choose a Wallet</h3>
-          <p className="text-sm text-[#4a5568] mt-1">Select your preferred wallet to access the Base ecosystem</p>
-
-          <div className="mt-4 space-y-0.5">
+          {/* Left panel — wallet list */}
+          <div className="w-[210px] shrink-0 bg-[#f9fafb] border-r border-[#e2e4e9] py-2">
             {sortedConnectors.map((connector) => {
               const option = getWalletOption(connector.id, connector.name);
-              const isConnecting = isPending && selectedConnector === connector.id;
+              const isSelected = selectedConnector === connector.id;
+              const isConnecting = isPending && isSelected;
 
               return (
                 <button
                   key={connector.id}
                   onClick={() => handleConnect(connector.id)}
+                  onMouseEnter={() => setHoveredConnector(connector.id)}
+                  onMouseLeave={() => setHoveredConnector(null)}
                   disabled={isConnecting}
-                  className="relative w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-[#f9fafb] transition-colors text-left disabled:opacity-60 disabled:cursor-not-allowed"
+                  className={`w-full flex items-center gap-3 px-3 py-3 transition-colors text-left disabled:opacity-60 disabled:cursor-not-allowed ${
+                    isSelected ? "bg-white" : "hover:bg-white/60"
+                  }`}
                 >
                   <WalletIcon type={option.iconType} />
-                  <span className="flex-1 text-sm font-medium text-[#0a0b0d]">
-                    {option.label}
-                  </span>
-                  {isConnecting ? (
-                    <span className="text-xs text-[#4a5568]">Connecting...</span>
-                  ) : (
-                    <svg className="w-5 h-5 text-[#4a5568]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  )}
+                  <div className="min-w-0">
+                    <div className="text-sm font-medium text-[#0a0b0d] truncate">{option.label}</div>
+                    {isConnecting && (
+                      <div className="text-xs text-[#4a5568]">Connecting...</div>
+                    )}
+                  </div>
                 </button>
               );
             })}
           </div>
 
-          {/* Footer link */}
-          <p className="mt-5 pt-4 border-t border-[#e2e4e9] text-center text-sm text-[#4a5568]">
-            New to crypto?{" "}
-            <a
-              href={LEARN_MORE_WALLETS_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-medium text-[#0052ff] hover:text-[#0042cc] hover:underline transition-colors"
-            >
-              Learn more about wallets
-            </a>
-          </p>
+          {/* Right panel — wallet detail / prompt */}
+          <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
+            {activeOption ? (
+              <>
+                <WalletIcon type={activeOption.iconType} size="lg" />
+                <h3 className="mt-4 text-base font-semibold text-[#0a0b0d]">
+                  {activeOption.label}
+                </h3>
+                <p className="mt-2 text-sm text-[#4a5568] leading-relaxed max-w-[200px]">
+                  {activeOption.description}
+                </p>
+                {isPending && selectedConnector === activeOption.id && (
+                  <div className="mt-5 flex items-center gap-2 text-sm text-[#4a5568]">
+                    <div className="w-4 h-4 border-2 border-[#0052ff] border-t-transparent rounded-full animate-spin" aria-hidden />
+                    <span>Connecting...</span>
+                  </div>
+                )}
+              </>
+            ) : (
+              <>
+                <div className="w-12 h-12 rounded-xl bg-[#f3f4f6] flex items-center justify-center mb-3">
+                  <svg className="w-6 h-6 text-[#9ca3af]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                  </svg>
+                </div>
+                <p className="text-sm text-[#4a5568] leading-relaxed max-w-[200px]">
+                  Select a wallet to connect to the Base ecosystem
+                </p>
+              </>
+            )}
+          </div>
         </div>
+
+        {/* Footer */}
+        <p className="px-5 py-4 border-t border-[#e2e4e9] text-center text-sm text-[#4a5568]">
+          New to crypto?{" "}
+          <a
+            href={LEARN_MORE_WALLETS_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-[#0052ff] hover:text-[#0042cc] hover:underline transition-colors"
+          >
+            Learn more about wallets
+          </a>
+        </p>
       </div>
     </div>
   );

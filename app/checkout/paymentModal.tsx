@@ -55,6 +55,31 @@ export default function PaymentModal({
 }: PaymentModalProps) {
   const paymentComponentRef = useRef<CoinbasePaymentElement | null>(null);
 
+  // Inject style overrides into the shadow DOM
+  useEffect(() => {
+    if (!isOpen || !paymentComponentRef.current) return;
+    const component = paymentComponentRef.current;
+
+    const injectStyles = () => {
+      const shadow = component.shadowRoot;
+      if (!shadow) return;
+      if (shadow.querySelector('#cb-overrides')) return;
+      const style = document.createElement('style');
+      style.id = 'cb-overrides';
+      style.textContent = `
+        .QRCodeConnection-module__showExtensionButton___opubP {
+          justify-content: center !important;
+        }
+      `;
+      shadow.appendChild(style);
+    };
+
+    // Try immediately and also after a short delay (shadow root may not exist yet)
+    injectStyles();
+    const t = setTimeout(injectStyles, 300);
+    return () => clearTimeout(t);
+  }, [isOpen]);
+
   // Render payment component when payment data is available
   useEffect(() => {
     if (isOpen && payment && paymentComponentRef.current) {
@@ -99,7 +124,6 @@ export default function PaymentModal({
         component.removeEventListener('paymentError', handlePaymentError as EventListener);
       };
     }, [isOpen, payment, onClose, onPaymentSuccess]);
-  
 
   if (!isOpen) return null;
 
@@ -116,7 +140,7 @@ export default function PaymentModal({
 
       {/* Card: altura según contenido */}
       <div
-        className="fixed left-1/2 top-1/2 z-101 min-w-0 w-full max-w-[min(640px,calc(100vw-2rem))] max-h-[85vh] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl bg-white border border-[#e2e4e9] shadow-sm animate-fade-in-up flex items-center justify-center"
+        className="fixed left-1/2 top-1/2 z-101 min-w-0 w-full max-w-[min(680px,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 rounded-2xl overflow-hidden border border-[#e5e7eb] shadow-lg animate-fade-in-up"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -129,12 +153,12 @@ export default function PaymentModal({
             <p className="text-sm text-[#4a5568] leading-relaxed">Preparing payment...</p>
           </div>
         ) : (
-          <div className="payment-modal-embed w-full min-w-0 self-stretch flex flex-col min-h-0 relative">
+          <div className="payment-modal-embed w-full min-w-0">
             {/* @ts-expect-error - Web component */}
             <coinbase-payment
               ref={paymentComponentRef}
               id="payment-link"
-              layout="single-column"
+              layout="default"
               payment={payment}
             />
           </div>
