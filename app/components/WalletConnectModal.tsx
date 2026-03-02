@@ -46,8 +46,13 @@ function WalletIcon({ type }: { type: WalletOption["iconType"] }) {
   switch (type) {
     case "base":
       return (
-        <div className={`${baseClass} bg-[#0052ff]`}>
-          <span className="text-white font-bold text-sm">B</span>
+        <div className={`${baseClass} overflow-hidden bg-white border border-[#e2e4e9] p-0.5`}>
+          <img
+            src="/base-app-logo.png"
+            alt=""
+            className="w-full h-full object-contain"
+            aria-hidden
+          />
         </div>
       );
     case "walletconnect":

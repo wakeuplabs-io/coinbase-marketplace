@@ -7,6 +7,25 @@
   --accent: #0052ff;
   --border: #e2e4e9;
   --card-bg: #f9fafb;
+
+  /* Coinbase payment embed — design tokens (inherit into shadow DOM).
+     Ref: docs/COINBASE_PAYMENT_MODAL_THEME.md | MCP: https://docs.cdp.coinbase.com/mcp */
+  --cb-color-background-primary: #ffffff;
+  --cb-color-background-secondary: #f5f5f7;
+  --cb-color-qr-background: #ffffff;
+  --cb-color-text-primary: #0a0b0d;
+  --cb-color-button-primary: #0052ff;
+  --cb-color-button-primary-hover: #0042cc;
+  --cb-color-button-primary-text: #ffffff;
+  --cb-border-radius-button-primary: 14px;
+  --cb-color-border-primary: #e2e4e9;
+  --cb-color-icon: #5b616e;
+  --cb-color-icon-background-hover: #e8e8ec;
+  --cb-color-accent-primary: #0052ff;
+  --cb-color-link-hover: #0042cc;
+  --cb-color-navigation-hover: #e8e8ec;
+  --cb-typography-header-font-family: "Inter", var(--font-inter), sans-serif;
+  --cb-typography-body-font-family: "Inter", var(--font-inter), sans-serif;
 }
 
 @theme inline {
@@ -393,33 +412,31 @@ a[href] {
   }
 }
 
-/* Coinbase payment embed — design system tokens (Embedded UI CSS custom properties) */
+/* Coinbase payment embed — override for modal context (Embedded UI).
+   Full token list: docs/COINBASE_PAYMENT_MODAL_THEME.md */
 .payment-modal-embed coinbase-payment {
-  --cb-color-background-primary: var(--background);
-  --cb-color-background-secondary: var(--card-bg);
-  --cb-color-text-primary: var(--foreground);
-  --cb-color-button-primary: var(--accent);
-  --cb-color-button-primary-hover: #0042cc;
+  --cb-color-background-primary: #ffffff;
+  --cb-color-background-secondary: #eff6ff;
+  --cb-color-qr-background: #ffffff;
+  --cb-color-text-primary: #0a0b0d;
+  --cb-color-button-primary: #1a2340;
+  --cb-color-button-primary-hover: #111827;
   --cb-color-button-primary-text: #ffffff;
   --cb-border-radius-button-primary: 12px;
-  --cb-color-border-primary: var(--border);
+  --cb-color-border-primary: #e5e7eb;
+  --cb-color-icon: #6b7280;
+  --cb-color-icon-background-hover: #f3f4f6;
+  --cb-color-accent-primary: #0052ff;
+  --cb-color-link-hover: #0042cc;
+  --cb-color-navigation-hover: #f3f4f6;
   --cb-typography-header-font-family: "Inter", var(--font-inter), sans-serif;
   --cb-typography-body-font-family: "Inter", var(--font-inter), sans-serif;
 }
 
-/* Wallet list: una columna (uno debajo del otro) en lugar de grid */
-.payment-modal-embed coinbase-payment [class*="grid"],
-.payment-modal-embed coinbase-payment [class*="wallet-grid"],
-.payment-modal-embed coinbase-payment [class*="WalletGrid"] {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: stretch !important;
-}
-.payment-modal-embed coinbase-payment [class*="grid"] > *,
-.payment-modal-embed coinbase-payment [class*="wallet-grid"] > *,
-.payment-modal-embed coinbase-payment [class*="WalletGrid"] > * {
-  width: 100% !important;
-  max-width: 100% !important;
+/* Ensure host gets dimensions and theme even before/after upgrade */
+coinbase-payment {
+  display: block;
+  background-color: #eff6ff;
 }
 
 /* 19. Enhanced button press effect */
