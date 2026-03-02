@@ -414,6 +414,7 @@ a[href] {
 
 /* Coinbase payment embed — override for modal context (Embedded UI).
    Full token list: docs/COINBASE_PAYMENT_MODAL_THEME.md */
+/* Theme overrides */
 .payment-modal-embed coinbase-payment {
   --cb-color-background-primary: #ffffff;
   --cb-color-background-secondary: #eff6ff;
