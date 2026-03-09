@@ -41,8 +41,8 @@ export async function POST(request: Request) {
       successRedirectUrl: paymentConfig.successRedirectUrl,
       failRedirectUrl: paymentConfig.failRedirectUrl,
       successCallbackUrl: paymentConfig.successCallbackUrl,
-      autoAuthorize: true,
-      autoCapture: false,
+      autoAuthorize: false,
+      autoCapture: true,
     } as Parameters<PaymentService['createPaymentLink']>[0]);
 
     console.log('result', result);
