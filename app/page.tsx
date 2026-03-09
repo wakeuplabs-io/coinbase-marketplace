@@ -161,9 +161,9 @@ export default function Home() {
               </div>
 
               {/* Secondary CTA - Mobile (Step 2) */}
-              <div className="mt-5 sm:mt-6 animate-fade-in-up delay-200 w-full flex justify-start">
-                <div className="flex flex-col gap-2.5 sm:gap-3 items-start text-left">
-                  <span className="text-[11px] sm:text-xs font-semibold text-[#0052ff] uppercase tracking-wide">
+              <div className="mt-5 sm:mt-6 animate-fade-in-up delay-200 w-full flex justify-center">
+                <div className="flex flex-col gap-2.5 sm:gap-3 items-center text-center">
+                  <span className="text-[11px] sm:text-xs font-semibold text-[#0052ff] uppercase tracking-wide self-start">
                     Step 2
                   </span>
                   <button

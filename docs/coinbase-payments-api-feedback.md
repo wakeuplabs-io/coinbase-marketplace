@@ -1,4 +1,4 @@
-# Feedback: Coinbase Payments API (CDP) — Developer Experience
+# Feedback: Coinbase Payments API (CDP) 
 
 *Feedback document for Coinbase's technical team, based on implementing two main flows: payments (create payment → embedded modal → capture → success) and faucet (wallet/Base integration → request tokens via CDP).*
 
@@ -101,10 +101,13 @@ sequenceDiagram
 ### Embedded modal
 
 - **CSS customisation**  
-  Styling is limited to colours. It would be useful to be able to override the modal container classes as well, not only colours, to better match our app.
+  Styling is limited to colours. It would be useful to be able to override the modal container classes as well, not only colours, to better match our app. In particular, it is difficult to remove padding or overwrite internal classes (e.g. to align the modal with our layout). Example:
+
+  ![Payment modal — difficult to remove padding or overwrite classes](payment-modal-css.png) 
 
 - **Connect wallet + payment in one flow**  
-  It would be useful to support connecting the wallet together with (or before) the payment step. In flows like our faucet, we cannot know which wallet the user will pay with until the modal opens at the last step, which limits what we can do earlier in the journey (e.g. pre-checks, messaging, or UX that depends on the chosen wallet). Being able to surface connect-wallet earlier—or combine connect and pay in the same modal flow—would help.
+  It would be useful to support connecting the wallet together with (or before) the payment step. In flows like our faucet, we cannot know which wallet the user will pay with until the modal opens at the last step, which limits what we can do earlier in the journey (e.g. pre-checks, messaging, or UX that depends on the chosen wallet). Being able to surface connect-wallet earlier with the same modal would help.
+
 
 ### CORS and domains
 
@@ -142,3 +145,5 @@ sequenceDiagram
 - **Business-oriented intro**  
   A higher-level intro section with diagrams and different usage options (e.g. auto-capture vs keeping funds in escrow) to make it easier to choose how to integrate for each use case.
 
+- **Payment & Connect Wallet as SDK**  
+  Offer payment and connect-wallet flows as a proper SDK (instead of or in addition to embedded code), so integrators get a more flexible, parameterizable, and maintainable integration.

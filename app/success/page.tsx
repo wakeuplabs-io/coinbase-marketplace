@@ -181,9 +181,9 @@ function SuccessContent() {
           <button
             type="button"
             onClick={() => router.push("/")}
-            className="w-full px-4 py-3 bg-white text-[#374151] rounded-xl font-medium hover:bg-[#f9fafb] transition-colors border border-[#e5e7eb]"
+            className="w-full flex items-center justify-center px-4 py-3 bg-white text-[#374151] rounded-xl font-medium hover:bg-[#f9fafb] transition-colors border border-[#e5e7eb]"
           >
-            Return to Dashboard
+            Return Home
           </button>
         </section>
       </main>
