@@ -67,8 +67,81 @@ export default function PaymentModal({
       const style = document.createElement('style');
       style.id = 'cb-overrides';
       style.textContent = `
+        :host {
+          min-height: 0 ;
+          max-height: 100% ;
+          display: block ;
+          border-radius: 16px ;
+          overflow: visible ;
+        }
+        /* Let layout fit content without stretching and respect modal height */
+        [class*="Layout"],
+        [class*="Container"] {
+          min-height: 0 ;
+          max-height: 100% ;
+        }
+        :host > div {
+          min-height: 0 ;
+          max-height: 100% !important;
+          border-radius: 16px ;
+          overflow: visible ;
+          display: flex ;
+          flex-direction: column ;
+        }
+        /* Main two-column grid should fill available height without overflowing */
+        [class*="gridContainer"],
+        [class*="TwoColumn"] {
+          height: 100% !important;
+          max-height: 100% !important;
+          overflow: visible ;
+          align-items: stretch ;
+        }
+        /* Left column: wallet list scrolls independently inside fixed-height modal */
+        [class*="standaloneConnection"],
+        [class*="walletList"] {
+          max-height: 100% ;
+          overflow-y: auto ;
+          overscroll-behavior: contain ;
+        }
+        /* Ensure heading area stays fixed height and does not expand with content */
+        [class*="headingContainer"] {
+          flex: 0 0 auto ;
+        }
+        /* Right column / connection panel: fill visible height and center content */
+        [class*="walletConnectionContainer"],
+        [class*="extensionConnection"],
+        [class*="ExtensionConnection"] {
+          height: 30% !important;
+          max-height: 30% !important;
+          display: flex ;
+          flex-direction: column ;
+          justify-content: center ;
+          align-items: center ;
+          overflow-y: auto ;
+          overscroll-behavior: contain ;
+        }
+        [class*="Detail"],
+        [class*="Connection"][class*="Content"],
+        [class*="RightPanel"],
+        [class*="SidePanel"] {
+          height: 30% !important;
+          max-height: 30% !important;
+          display: flex ;
+          flex-direction: column ;
+          justify-content: center ;
+          align-items: center ;
+          min-height: 0 ;
+          overflow-y: auto ;
+          overscroll-behavior: contain ;
+        }
+        /* Center the connect button text */
         .QRCodeConnection-module__showExtensionButton___opubP {
-          justify-content: center !important;
+          justify-content: center ;
+        }
+        /* Tweak inline extension-only container height */
+        [class*="extensionConnectionOnlyContainer"] {
+          height: auto !important;
+          max-height: 30% !important;
         }
       `;
       shadow.appendChild(style);
@@ -128,19 +201,21 @@ export default function PaymentModal({
   if (!isOpen) return null;
 
   return (
-    <>
-      {/* Overlay — por encima del header */}
+    <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-backdrop">
       <button
         type="button"
-        className={`fixed inset-0 z-100 bg-black/50 animate-fade-backdrop border-0 p-0 w-full h-full transition-all ${isLoading ? "cursor-wait" : "cursor-pointer"}`}
+        className={`absolute inset-0 border-0 p-0 w-full h-full transition-all ${isLoading ? "cursor-wait" : "cursor-pointer"}`}
         onClick={isLoading ? undefined : onClose}
         disabled={isLoading}
         aria-label="Close payment modal"
       />
 
-      {/* Card: altura según contenido */}
       <div
-        className="fixed left-1/2 top-1/2 z-101 min-w-0 w-full max-w-[min(680px,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 rounded-2xl overflow-hidden border border-[#e5e7eb] shadow-lg animate-fade-in-up"
+        className={`relative z-10 w-full overflow-hidden rounded-2xl bg-white shadow-2xl animate-fade-in-up ${
+          isLoading && !payment
+            ? "max-w-[min(280px,100%)]"
+            : "max-w-[680px] max-h-[90vh]"
+        }`}
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -148,12 +223,12 @@ export default function PaymentModal({
         aria-label="Payment"
       >
         {isLoading && !payment ? (
-          <div className="flex flex-col items-center justify-center gap-4 p-8">
+          <div className="flex flex-col items-center justify-center gap-3 px-6 py-5">
             <div className="w-8 h-8 border-2 border-[#0052ff] border-t-transparent rounded-full animate-spin" aria-hidden />
             <p className="text-sm text-[#4a5568] leading-relaxed">Preparing payment...</p>
           </div>
         ) : (
-          <div className="payment-modal-embed w-full min-w-0">
+          <div className="payment-modal-embed h-auto max-h-[85vh] w-full min-w-0 overflow-y-auto">
             {/* @ts-expect-error - Web component */}
             <coinbase-payment
               ref={paymentComponentRef}
@@ -164,6 +239,6 @@ export default function PaymentModal({
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 }
