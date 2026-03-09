@@ -147,10 +147,12 @@ export default function CartSection() {
       ref={cartRef}
       className="w-full bg-white/90 backdrop-blur-sm rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)] border-t border-[#e2e4e9] relative overflow-hidden"
       aria-label="Shopping cart"
+      style={{ touchAction: "pan-y" }}
     >
       {/* Drag handle / Tab - Always visible */}
       <div
         className="flex justify-center py-3 cursor-grab active:cursor-grabbing select-none touch-none"
+        style={{ touchAction: "none" }}
         onMouseDown={handleDragStart}
         onTouchStart={handleDragStart}
       >

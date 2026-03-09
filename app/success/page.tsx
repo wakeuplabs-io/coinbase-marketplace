@@ -85,7 +85,7 @@ function SuccessContent() {
     : null;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#f9fafb]">
+    <div className="flex flex-col bg-[#f9fafb]">
       <Header
         showBackButton
         onBackClick={() => router.push("/")}
@@ -195,7 +195,7 @@ export default function SuccessPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-[#f9fafb]">
+        <div className="flex items-center justify-center bg-[#f9fafb]">
           <div className="w-8 h-8 border-2 border-[#0052ff] border-t-transparent rounded-full animate-spin" />
         </div>
       }

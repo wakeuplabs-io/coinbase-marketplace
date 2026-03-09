@@ -40,9 +40,14 @@ export default function ProductCard({
 
   const handleAddClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault();
     setIsAdding(true);
     onAddToCart();
     setTimeout(() => setIsAdding(false), 300);
+  };
+
+  const handleAddTouch = (e: React.TouchEvent) => {
+    e.stopPropagation();
   };
 
   return (
@@ -73,8 +78,11 @@ export default function ProductCard({
           </span>
           {isActive && (
             <button
+              type="button"
               onClick={handleAddClick}
-              className={`px-3 py-1.5 text-xs font-semibold bg-[#0a0b0d] text-white rounded-lg hover:bg-[#1a1b1d] transition-all hover:scale-[1.02] active:scale-[0.98] ${isAdding ? "animate-scale-bounce" : ""}`}
+              onTouchStart={handleAddTouch}
+              onTouchEnd={handleAddTouch}
+              className={`relative z-10 px-3 py-1.5 text-xs font-semibold bg-[#0a0b0d] text-white rounded-lg hover:bg-[#1a1b1d] transition-all hover:scale-[1.02] active:scale-[0.98] touch-manipulation ${isAdding ? "animate-scale-bounce" : ""}`}
               aria-label={`Add ${product.name} to cart`}
             >
               Add

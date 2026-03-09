@@ -53,7 +53,7 @@ export default function Header({
 
   return (
     <header className="w-full border-b border-[#e2e4e9]">
-      <nav className="max-w-6xl mx-auto px-4 sm:px-5 md:px-8 h-14 sm:h-16 flex items-center justify-between">
+      <nav className="w-full max-w-6xl mx-auto px-3 sm:px-5 md:px-8 h-14 sm:h-16 flex items-center justify-between box-border">
         {LogoLink}
         <div className="flex items-center gap-2">
         {showDemoBadge && (

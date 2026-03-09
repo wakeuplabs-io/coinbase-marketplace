@@ -56,7 +56,7 @@ export default function Home() {
     }, 1500);
   };
   return (
-    <div className="min-h-screen overflow-x-hidden flex flex-col bg-white">
+    <div className="overflow-x-hidden flex flex-col bg-white  min-h-screen">
       {/* Skip to main content for accessibility */}
       <a
         href="#main-content"
@@ -83,17 +83,21 @@ export default function Home() {
               Set up your wallet in minutes and explore the marketplace.
             </p>
 
-            {/* Secondary CTA - Desktop only */}
+            {/* Secondary CTA - Desktop only (Step 2) */}
             <div className="hidden lg:block mt-8 animate-fade-in-up delay-200">
               <div className="flex flex-col gap-3 items-start">
+                <span className="text-xs font-semibold text-[#0052ff] uppercase tracking-wide">Step 2</span>
                 <button
                   onClick={handleAlreadyHaveWallet}
                   className="group inline-flex items-center gap-2 px-5 py-2.5 text-[#0052ff] font-medium border border-[#0052ff]/20 rounded-xl hover:bg-[#0052ff]/5 transition-all hover:scale-[1.02] active:scale-[0.98]"
-                  aria-label="Continue to the marketplace if you already have a wallet"
+                  aria-label="Continue to buy in the marketplace"
                 >
-                  I already have a wallet
+                  Go to buy
                   <ArrowRight />
                 </button>
+                <p className="text-sm text-[#4a5568]">
+                  Just downloaded Base? Tap here to connect and shop.
+                </p>
               </div>
             </div>
           </div>
@@ -108,7 +112,7 @@ export default function Home() {
                   {/* Badge/Label */}
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-linear-to-r from-[#0052ff]/10 to-[#0066ff]/10 border border-[#0052ff]/20 rounded-full mb-3">
                     <span className="text-[11px] sm:text-xs font-semibold text-[#0052ff] uppercase tracking-wide">
-                      ⚡ Get Started
+                      ⚡ Get Started — Step 1
                     </span>
                   </div>
                   
@@ -156,30 +160,39 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Secondary CTA - Mobile */}
-              <div className="mt-5 sm:mt-6 animate-fade-in-up delay-200 w-full flex justify-center">
-                <div className="flex flex-col gap-2.5 sm:gap-3 items-center">
+              {/* Secondary CTA - Mobile (Step 2) */}
+              <div className="mt-5 sm:mt-6 animate-fade-in-up delay-200 w-full flex justify-start">
+                <div className="flex flex-col gap-2.5 sm:gap-3 items-start text-left">
+                  <span className="text-[11px] sm:text-xs font-semibold text-[#0052ff] uppercase tracking-wide">
+                    Step 2
+                  </span>
                   <button
                     onClick={handleAlreadyHaveWallet}
                     className="inline-flex items-center justify-center px-5 sm:px-6 py-2.5 text-[13px] sm:text-sm text-[#0052ff] font-medium border border-[#0052ff]/20 rounded-full hover:bg-[#0052ff]/5 transition-all active:scale-[0.95] touch-manipulation whitespace-nowrap"
-                    aria-label="Continue to the marketplace if you already have a wallet"
+                    aria-label="Continue to buy in the marketplace"
                   >
-                    I already have a wallet
+                    Go to buy
                   </button>
+                  <p className="text-xs text-[#4a5568] max-w-[260px]">
+                    Just downloaded Base? Tap above to connect and shop.
+                  </p>
                 </div>
               </div>
             </div>
 
             {/* Desktop: QR Card */}
             <div className="hidden lg:block">
-              <div className="qr-card bg-white border border-[#e2e4e9] rounded-2xl p-8 shadow-sm w-[360px] text-center animate-fade-in-up delay-200">
-                <h2 className="text-xl font-semibold text-[#0a0b0d] mb-2">
-                  Download Base App
-                </h2>
-                <p className="text-sm text-[#4a5568] mb-6 leading-relaxed">
-                  Create, earn, trade, discover apps, and chat with friends all
-                  in one place.
-                </p>
+              <div className="qr-card bg-white border border-[#e2e4e9] rounded-2xl p-8 shadow-sm w-[360px] animate-fade-in-up delay-200">
+                <div className="text-left">
+                  <span className="text-xs font-semibold text-[#0052ff] uppercase tracking-wide">Step 1</span>
+                  <h2 className="text-xl font-semibold text-[#0a0b0d] mt-1 mb-2">
+                    Download Base App
+                  </h2>
+                  <p className="text-sm text-[#4a5568] mb-6 leading-relaxed">
+                    Create, earn, trade, discover apps, and chat with friends all
+                    in one place.
+                  </p>
+                </div>
 
                 {/* QR Code with matching card border */}
                 <div className="flex justify-center mb-3">
@@ -198,12 +211,12 @@ export default function Home() {
                   </div>
                 </div>
 
-                <p className="text-xs text-[#4a5568] mb-6">
+                <p className="text-xs text-[#4a5568] mb-6 text-center">
                   Scan to download
                 </p>
 
                 {/* Store Buttons */}
-                <div className="flex gap-3">
+                <div className="flex gap-3 justify-center">
                   <a
                     href={config.baseAppIosUrl}
                     target="_blank"

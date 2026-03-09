@@ -66,7 +66,7 @@ function CheckoutContent() {
   } = useCheckoutOrder();
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="flex flex-col bg-white">
       {/* Load Coinbase payment script on checkout mount so it's ready when user clicks Pay */}
       <Script
         src="https://payments.coinbase.com/sandbox/payments/components/v1/payment-link.mjs"
@@ -341,7 +341,7 @@ function CheckoutContent() {
 export default function CheckoutPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="flex items-center justify-center bg-white">
         <div className="animate-pulse text-sm text-[#4a5568]">Loading checkout...</div>
       </div>
     }>

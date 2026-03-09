@@ -211,7 +211,7 @@ export default function WalletConnectModal({
         </div>
 
         {/* Footer */}
-        <p className="px-5 py-4 border-t border-[#e2e4e9] text-center text-sm text-[#4a5568]">
+        <p className="px-5 py-4 border-t border-[#e2e4e9] text-center text-sm text-[#4a5568] h-[60px]">
           New to crypto?{" "}
           <a
             href={LEARN_MORE_WALLETS_URL}

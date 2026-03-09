@@ -7,7 +7,7 @@ export default function FailPage() {
   const router = useRouter();
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#f9fafb]">
+    <div className="flex flex-col bg-[#f9fafb]">
       <Header
         showBackButton
         onBackClick={() => router.push("/")}

@@ -71,7 +71,7 @@ export default function ProductCarousel({ products }: ProductCarouselProps) {
     <div className="relative w-full py-8 overflow-hidden">
       <div
         className="relative h-[360px] flex items-center justify-center"
-        style={{ perspective: "1200px" }}
+        style={{ perspective: "1200px", touchAction: "pan-y" }}
         tabIndex={0}
         role="region"
         aria-label="Product carousel"
@@ -161,7 +161,7 @@ export default function ProductCarousel({ products }: ProductCarouselProps) {
       </button>
 
       <div
-        className="flex justify-center gap-1.5 sm:gap-2 mt-4"
+        className="flex justify-center items-center gap-2 sm:gap-2.5 mt-4"
         role="group"
         aria-label="Slide navigation"
       >
@@ -169,14 +169,19 @@ export default function ProductCarousel({ products }: ProductCarouselProps) {
           <button
             key={product.id}
             onClick={() => handleIndexChange(index)}
-            className={`rounded-full transition-all duration-300 ${
-              index === activeIndex
-                ? "bg-[#0052ff] w-4 sm:w-6 h-1.5 sm:h-2"
-                : "bg-[#e2e4e9] hover:bg-[#c8ccd4] w-1.5 sm:w-2 h-1.5 sm:h-2"
-            }`}
+            className="flex items-center justify-center p-1.5 touch-manipulation"
             aria-label={`Go to ${product.name}`}
             aria-current={index === activeIndex ? "true" : undefined}
-          />
+          >
+            <span
+              className={`block rounded-full transition-all duration-300 ${
+                index === activeIndex
+                  ? "bg-[#0052ff]"
+                  : "bg-[#e2e4e9]"
+              }`}
+              style={{ width: 8, height: 8 }}
+            />
+          </button>
         ))}
       </div>
     </div>

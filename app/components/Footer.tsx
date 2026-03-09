@@ -1,6 +1,6 @@
 export default function Footer() {
   return (
-    <footer className="w-full border-t border-[#e2e4e9] mt-auto bg-white/80 backdrop-blur-sm">
+    <footer className="w-full h-[60px] border-t border-[#e2e4e9] mt-auto bg-white/80 backdrop-blur-sm">
       <div className="max-w-6xl mx-auto px-4 sm:px-5 md:px-8 py-3 sm:py-0 sm:h-14 flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-0">
         <p className="text-[10px] sm:text-xs text-[#4a5568] text-center sm:text-left">
           Powered by Coinbase Payments APIs
