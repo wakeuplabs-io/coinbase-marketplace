@@ -67,9 +67,6 @@ sequenceDiagram
 - **Authentication (API key and Bearer token)**  
   Creating the API key in CDP, generating the Bearer token, and including it in requests is clear and worked without issues.
 
-- **Support**  
-  The operator whitelist process was resolved quickly with Coinbase's team.
-
 - **Create Payment documentation**  
   The `autoCapture` and `autoAuthorize` parameters that were missing from the docs are now documented; the create payment docs match current behaviour.
 
@@ -147,3 +144,6 @@ sequenceDiagram
 
 - **Payment & Connect Wallet as SDK**  
   Offer payment and connect-wallet flows as a proper SDK (instead of or in addition to embedded code), so integrators get a more flexible, parameterizable, and maintainable integration.
+
+- **Whitelisting request process**  
+  A form or step-by-step guide for requesting that domains or apps be added to the whitelist would help developers complete setup without back-and-forth.

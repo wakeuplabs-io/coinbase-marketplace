@@ -14,6 +14,7 @@ interface WalletOption {
 interface WalletConnectModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onConnectSuccess?: () => void;
 }
 
 const WALLET_ORDER: Record<string, number> = {
@@ -92,6 +93,7 @@ const LEARN_MORE_WALLETS_URL = "https://www.coinbase.com/learn/tips-and-tutorial
 export default function WalletConnectModal({
   isOpen,
   onClose,
+  onConnectSuccess,
 }: WalletConnectModalProps) {
   const { connect, isPending } = useConnect();
   const connectors = useConnectors();
@@ -110,7 +112,7 @@ export default function WalletConnectModal({
     const connector = connectors.find((c) => c.id === connectorId);
     if (connector) {
       setSelectedConnector(connectorId);
-      connect({ connector }, { onSuccess: onClose });
+      connect({ connector }, { onSuccess: onConnectSuccess ?? onClose });
     }
   };
 

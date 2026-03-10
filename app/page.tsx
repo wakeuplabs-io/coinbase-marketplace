@@ -250,6 +250,10 @@ export default function Home() {
       <WalletConnectModal
         isOpen={showConnectModal}
         onClose={() => setShowConnectModal(false)}
+        onConnectSuccess={() => {
+          setShowConnectModal(false);
+          router.push(config.marketplaceUrl);
+        }}
       />
 
       {/* Faucet Modal */}
