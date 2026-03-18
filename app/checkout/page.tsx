@@ -10,8 +10,9 @@ import ProductIcon from "@/app/components/ProductIcon";
 import {
   CreditCardLogos,
   PayPalLogo,
-  CryptoWalletIcons,
+  StablecoinLogos,
 } from "@/app/components/PaymentIcons";
+import WalletConnectModal from "@/app/components/WalletConnectModal";
 import { formatPrice } from "@/app/lib/utils";
 
 import { useCheckoutForm } from "@/app/checkout/hooks/useCheckoutForm";
@@ -44,13 +45,14 @@ function PlaceholderThumbnail({
   );
 }
 
-type PaymentMethod = "credit" | "shop" | "crypto";
+type PaymentMethod = "credit" | "paypal" | "shop" | "crypto";
 
 function CheckoutContent() {
   const { items, subtotal } = useCart();
   const router = useRouter();
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("crypto");
   const [showFaucetModal, setShowFaucetModal] = useState(false);
+  const [showConnectModal, setShowConnectModal] = useState(false);
 
   const { register, handleSubmit, formState: { errors } } = useCheckoutForm();
   const { insufficientFunds, usdcBalance } = useCheckoutFunds();
@@ -141,15 +143,15 @@ function CheckoutContent() {
                   <p className="text-sm text-[#4a5568] mb-4">All transactions are secure and encrypted.</p>
 
                   <div className="space-y-2">
-                    {/* Credit Card - Disabled */}
-                    <label className="flex items-start gap-3 p-4 bg-[#f9fafb] border border-[#e2e4e9] rounded-xl cursor-not-allowed opacity-50 grayscale">
+                    {/* Credit Card - Selectable but Pay disabled when selected */}
+                    <label className="flex items-start gap-3 p-4 bg-[#f9fafb] border border-[#e2e4e9] rounded-xl cursor-pointer hover:bg-white transition-colors">
                       <input
                         type="radio"
                         name="payment"
                         value="credit"
-                        checked={false}
-                        disabled
-                        className="mt-1"
+                        checked={paymentMethod === "credit"}
+                        onChange={() => setPaymentMethod("credit")}
+                        className="mt-1 w-4 h-4 text-[#0052ff] border-gray-300 focus:ring-[#0052ff] focus:ring-2"
                       />
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
@@ -159,15 +161,15 @@ function CheckoutContent() {
                       </div>
                     </label>
 
-                    {/* PayPal - Disabled */}
-                    <label className="flex items-center gap-3 p-4 bg-[#f9fafb] border border-[#e2e4e9] rounded-xl cursor-not-allowed opacity-50 grayscale">
+                    {/* PayPal - Selectable but Pay disabled when selected */}
+                    <label className="flex items-center gap-3 p-4 bg-[#f9fafb] border border-[#e2e4e9] rounded-xl cursor-pointer hover:bg-white transition-colors">
                       <input
                         type="radio"
                         name="payment"
                         value="paypal"
-                        checked={false}
-                        disabled
-                        className="mt-0.5"
+                        checked={paymentMethod === "paypal"}
+                        onChange={() => setPaymentMethod("paypal")}
+                        className="mt-0.5 w-4 h-4 text-[#0052ff] border-gray-300 focus:ring-[#0052ff] focus:ring-2"
                       />
                       <div className="flex-1 flex items-center justify-between">
                         <span className="text-sm font-medium text-[#0a0b0d]">PayPal</span>
@@ -175,7 +177,7 @@ function CheckoutContent() {
                       </div>
                     </label>
 
-                    {/* Crypto: USDC - Active */}
+                    {/* Crypto: USDC / USDT - Active */}
                     <label className="flex items-start gap-3 p-4 bg-[#f9fafb] border border-[#e2e4e9] rounded-xl cursor-pointer hover:bg-white transition-colors">
                       <input
                         type="radio"
@@ -188,10 +190,7 @@ function CheckoutContent() {
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-1">
                           <span className="text-sm font-medium text-[#0a0b0d]">Stablecoin</span>
-                          <CryptoWalletIcons />
-                        </div>
-                        <div className="mt-1">
-                          <span className="text-xs text-[#4a5568]">Make sure to use the same wallet connected previously.</span>
+                          <StablecoinLogos onClick={() => setShowConnectModal(true)} />
                         </div>
                       </div>
                     </label>
@@ -230,7 +229,7 @@ function CheckoutContent() {
                 {/* Pay Now Button */}
                 <button
                   type="submit"
-                  disabled={isLoading || isPreparingPayment || insufficientFunds}
+                  disabled={isLoading || isPreparingPayment || insufficientFunds || paymentMethod === "credit" || paymentMethod === "paypal"}
                   className="w-full mb-3 px-5 py-3 bg-[#0a0b0d] text-white rounded-xl text-sm font-semibold hover:bg-[#1a1b1d] transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                 >
                   {(isLoading || isPreparingPayment) ? "Processing..." : "Pay now"}
@@ -293,6 +292,13 @@ function CheckoutContent() {
         isLoading={isPreparingPayment || isLoading}
         onClose={handleCloseModal}
         onPaymentSuccess={handlePaymentSuccess}
+      />
+
+      {/* Wallet Connect Modal (from Stablecoin logos) */}
+      <WalletConnectModal
+        isOpen={showConnectModal}
+        onClose={() => setShowConnectModal(false)}
+        onConnectSuccess={() => setShowConnectModal(false)}
       />
 
       {/* Faucet Modal */}

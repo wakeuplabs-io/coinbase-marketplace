@@ -10,8 +10,13 @@ import PlayStoreLogo from "./components/icons/PlayStoreLogo";
 import ArrowRight from "./components/icons/ArrowRight";
 import FaucetRequest from "./components/FaucetRequest";
 import WalletConnectModal from "./components/WalletConnectModal";
+import { useConnect, useConnectors } from "wagmi";
 import { useWallet } from "./hooks/useWallet";
 import { config } from "./lib/config";
+
+function isBaseConnector(id: string): boolean {
+  return id === "coinbaseWalletSDK" || id.includes("coinbase");
+}
 
 export default function Home() {
   const [showFaucetModal, setShowFaucetModal] = useState(false);
@@ -38,11 +43,35 @@ export default function Home() {
     }
   }, [isConnected, usdcBalance, isLoadingBalance]);
 
-  const handleAlreadyHaveWallet = () => {
+  const { connect } = useConnect();
+  const connectors = useConnectors();
+
+  const handleConnectBaseWallet = () => {
+    if (isConnected) {
+      router.push(config.marketplaceUrl);
+      return;
+    }
+    const baseConnector = connectors.find((c) => isBaseConnector(c.id));
+    if (baseConnector) {
+      connect(
+        { connector: baseConnector },
+        {
+          onSuccess: () => {
+            setShowConnectModal(false);
+            router.push(config.marketplaceUrl);
+          },
+        }
+      );
+    } else {
+      // Fallback: open modal if Base connector not available
+      setShowConnectModal(true);
+    }
+  };
+
+  const handleConnectOtherWallet = () => {
     if (!isConnected) {
       setShowConnectModal(true);
     } else {
-      // If already connected and has balance, go to marketplace
       router.push(config.marketplaceUrl);
     }
   };
@@ -72,9 +101,9 @@ export default function Home() {
         id="main-content"
         className="flex-1 flex items-start lg:items-center justify-center px-4 sm:px-5 md:px-8 py-6 sm:py-8 lg:py-0"
       >
-        <div className="max-w-5xl w-full flex flex-col lg:grid lg:grid-cols-2 items-stretch lg:items-center gap-6 sm:gap-8 lg:gap-16">
-          {/* Left Column - Copy */}
-          <div className="order-1 w-full">
+        <div className="max-w-5xl w-full flex flex-col lg:grid lg:grid-cols-2 items-stretch lg:items-center gap-6 sm:gap-8 lg:gap-10">
+          {/* Right Column */}
+          <div className="order-2 w-full">
             <h1 className="text-[34px] leading-[1.15] sm:text-4xl lg:text-5xl font-semibold tracking-tight text-[#0a0b0d] lg:leading-tight animate-fade-in-up text-center lg:text-left">
               Pay with Stablecoins. Borderless. 24/7.<span className="instantly-shimmer"> Instant.</span>
             </h1>
@@ -87,23 +116,33 @@ export default function Home() {
             <div className="hidden lg:block mt-8 animate-fade-in-up delay-200">
               <div className="flex flex-col gap-3 items-start">
                 <span className="text-xs font-semibold text-[#0052ff] uppercase tracking-wide">Step 2</span>
-                <button
-                  onClick={handleAlreadyHaveWallet}
-                  className="group inline-flex items-center gap-2 px-5 py-2.5 text-[#0052ff] font-medium border border-[#0052ff]/20 rounded-xl hover:bg-[#0052ff]/5 transition-all hover:scale-[1.02] active:scale-[0.98]"
-                  aria-label="Continue to buy in the marketplace"
-                >
-                  Go to buy
-                  <ArrowRight />
-                </button>
                 <p className="text-sm text-[#4a5568]">
-                  Just downloaded Base? Tap here to connect and shop.
+                  Do not have test funds yet? Connect your wallet to receive your test funds.
                 </p>
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    onClick={handleConnectBaseWallet}
+                    className="group inline-flex items-center gap-2 px-5 py-2.5 bg-[#0052ff] text-white font-medium rounded-xl hover:bg-[#0042cc] transition-all hover:scale-[1.02] active:scale-[0.98]"
+                    aria-label="Connect your Base wallet"
+                  >
+                    Connect your Base wallet
+                    <ArrowRight />
+                  </button>
+                  <button
+                    onClick={handleConnectOtherWallet}
+                    className="group inline-flex items-center gap-2 px-5 py-2.5 text-[#0052ff] font-medium border border-[#0052ff]/20 rounded-xl hover:bg-[#0052ff]/5 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                    aria-label="Connect another wallet"
+                  >
+                    Connect another wallet
+                    <ArrowRight />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Right Column - QR Card (Desktop) / Download Buttons (Mobile) */}
-          <div className="order-2 w-full lg:justify-self-end">
+          {/* Left Column */}
+          <div className="order-1 w-full lg:justify-self-end">
             {/* Mobile: Prominent download buttons (NO QR) - Enhanced CTA */}
             <div className="lg:hidden w-full">
               <div className="relative bg-linear-to-br from-[#0052ff] via-[#0066ff] to-[#0052ff] rounded-2xl p-[2px] animate-fade-in-up-with-pulse">
@@ -166,16 +205,25 @@ export default function Home() {
                   <span className="text-[11px] sm:text-xs font-semibold text-[#0052ff] uppercase tracking-wide self-start">
                     Step 2
                   </span>
-                  <button
-                    onClick={handleAlreadyHaveWallet}
-                    className="inline-flex items-center justify-center px-5 sm:px-6 py-2.5 text-[13px] sm:text-sm text-[#0052ff] font-medium border border-[#0052ff]/20 rounded-full hover:bg-[#0052ff]/5 transition-all active:scale-[0.95] touch-manipulation whitespace-nowrap"
-                    aria-label="Continue to buy in the marketplace"
-                  >
-                    Go to buy
-                  </button>
                   <p className="text-xs text-[#4a5568] max-w-[260px]">
-                    Just downloaded Base? Tap above to connect and shop.
+                    Connect your wallet to receive your test funds.
                   </p>
+                  <div className="flex flex-row flex-wrap items-center justify-center gap-2.5 w-full sm:w-auto">
+                    <button
+                      onClick={handleConnectBaseWallet}
+                      className="inline-flex items-center justify-center px-5 sm:px-6 py-2.5 text-[13px] sm:text-sm bg-[#0052ff] text-white font-medium rounded-full hover:bg-[#0042cc] transition-all active:scale-[0.95] touch-manipulation"
+                      aria-label="Connect your Base wallet"
+                    >
+                      Connect your Base wallet
+                    </button>
+                    <button
+                      onClick={handleConnectOtherWallet}
+                      className="inline-flex items-center justify-center px-5 sm:px-6 py-2.5 text-[13px] sm:text-sm text-[#0052ff] font-medium border border-[#0052ff]/20 rounded-full hover:bg-[#0052ff]/5 transition-all active:scale-[0.95] touch-manipulation"
+                      aria-label="Connect another wallet"
+                    >
+                      Connect another wallet
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -184,7 +232,10 @@ export default function Home() {
             <div className="hidden lg:block">
               <div className="qr-card bg-white border border-[#e2e4e9] rounded-2xl p-8 shadow-sm w-[360px] animate-fade-in-up delay-200">
                 <div className="text-left">
-                  <span className="text-xs font-semibold text-[#0052ff] uppercase tracking-wide">Step 1</span>
+                  <span className="text-xs font-semibold text-[#0052ff] uppercase tracking-wide">Step 1 (Optional)</span>
+                  {!isConnected && (
+                    <p className="text-xs text-[#4a5568] mt-0.5">Only if you don&apos;t have a wallet yet.</p>
+                  )}
                   <h2 className="text-xl font-semibold text-[#0a0b0d] mt-1 mb-2">
                     Download Base App
                   </h2>
@@ -254,6 +305,7 @@ export default function Home() {
           setShowConnectModal(false);
           router.push(config.marketplaceUrl);
         }}
+        excludeBaseWallet
       />
 
       {/* Faucet Modal */}

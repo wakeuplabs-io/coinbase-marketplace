@@ -3,7 +3,9 @@ import { baseSepolia } from 'wagmi/chains';
 import { coinbaseWallet, injected, metaMask, walletConnect } from 'wagmi/connectors';
 
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID;
-if (!projectId && typeof window !== 'undefined') {
+const disableWalletConnect =
+  process.env.NEXT_PUBLIC_DISABLE_WALLETCONNECT === 'true';
+if (!projectId && typeof window !== 'undefined' && !disableWalletConnect) {
   console.warn(
     '[wagmi] NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID is missing. Get one at https://cloud.walletconnect.com'
   );
@@ -14,7 +16,7 @@ const connectors = [
     appName: 'Coinbase Marketplace',
     preference: 'all',
   }),
-  ...(projectId
+  ...(projectId && !disableWalletConnect
     ? [
         walletConnect({
           projectId,

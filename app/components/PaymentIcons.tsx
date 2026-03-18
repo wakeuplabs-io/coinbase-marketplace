@@ -24,9 +24,9 @@ export function CreditCardLogos() {
 export function PayPalLogo() {
   return (
     <img
-      src="/payment-icons/paypal-logo.png"
+      src="/paypal-logo.svg"
       alt="PayPal"
-      className="h-5 w-auto"
+      className="h-6 w-auto"
     />
   );
 }
@@ -52,4 +52,46 @@ export function CryptoWalletIcons() {
       <span className="text-xs text-[#4a5568]">+480</span>
     </div>
   );
+}
+
+export function StablecoinLogos({
+  onClick,
+  className = "",
+}: {
+  onClick?: () => void;
+  className?: string;
+}) {
+  const content = (
+    <div className="flex items-center gap-2">
+      <img
+        src="/usdc-logo.svg"
+        alt="USDC"
+        className="h-6 w-6 rounded-full"
+      />
+      <img
+        src="/usdt-logo.svg"
+        alt="USDT"
+        className="h-6 w-6 rounded-full"
+      />
+    </div>
+  );
+
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onClick();
+        }}
+        className={`flex items-center gap-2 rounded-lg p-1 -m-1 hover:bg-[#0052ff]/5 transition-colors ${className}`}
+        aria-label="Connect wallet"
+      >
+        {content}
+      </button>
+    );
+  }
+
+  return <div className={className}>{content}</div>;
 }
