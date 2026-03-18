@@ -126,7 +126,6 @@ export default function Home() {
                     aria-label="Connect your Base wallet"
                   >
                     Connect your Base wallet
-                    <ArrowRight />
                   </button>
                   <button
                     onClick={handleConnectOtherWallet}
@@ -134,7 +133,6 @@ export default function Home() {
                     aria-label="Connect another wallet"
                   >
                     Connect another wallet
-                    <ArrowRight />
                   </button>
                 </div>
               </div>
