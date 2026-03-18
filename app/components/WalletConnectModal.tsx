@@ -11,10 +11,16 @@ interface WalletOption {
   description: string;
 }
 
+function isBaseConnector(connectorId: string): boolean {
+  return connectorId === "coinbaseWalletSDK" || connectorId.includes("coinbase");
+}
+
 interface WalletConnectModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConnectSuccess?: () => void;
+  /** When true, Base Wallet is hidden from the list (e.g. for "Connect another wallet" flow). */
+  excludeBaseWallet?: boolean;
 }
 
 const WALLET_ORDER: Record<string, number> = {
@@ -94,6 +100,7 @@ export default function WalletConnectModal({
   isOpen,
   onClose,
   onConnectSuccess,
+  excludeBaseWallet = false,
 }: WalletConnectModalProps) {
   const { connect, isPending } = useConnect();
   const connectors = useConnectors();
@@ -108,6 +115,10 @@ export default function WalletConnectModal({
 
   if (!isOpen || !mounted) return null;
 
+  const filteredConnectors = excludeBaseWallet
+    ? connectors.filter((c) => !isBaseConnector(c.id))
+    : connectors;
+
   const handleConnect = (connectorId: string) => {
     const connector = connectors.find((c) => c.id === connectorId);
     if (connector) {
@@ -116,7 +127,7 @@ export default function WalletConnectModal({
     }
   };
 
-  const sortedConnectors = [...connectors].sort(
+  const sortedConnectors = [...filteredConnectors].sort(
     (a, b) => (WALLET_ORDER[a.id] ?? 99) - (WALLET_ORDER[b.id] ?? 99)
   );
 

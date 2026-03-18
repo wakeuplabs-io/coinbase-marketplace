@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import CoinbaseLogo from "./icons/CoinbaseLogo";
+import Image from "next/image";
 import BackArrowIcon from "./icons/BackArrowIcon";
 import Link from "next/link";
 import { useWallet } from "../hooks/useWallet";
@@ -21,7 +21,7 @@ export default function Header({
   showDemoBadge = false,
 }: HeaderProps) {
   const [showConnectModal, setShowConnectModal] = useState(false);
-  const { address, isConnected, isLoading, usdcBalance, isLoadingBalance, disconnect } = useWallet();
+  const { address, isConnected, usdcBalance, isLoadingBalance, disconnect } = useWallet();
   const LogoLink = showBackButton ? (
     <button
       onClick={onBackClick}
@@ -30,7 +30,7 @@ export default function Header({
     >
       <BackArrowIcon className="sm:w-5 sm:h-5" size={18} />
       <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0">
-        <CoinbaseLogo className="sm:w-7 sm:h-7" size={24} />
+        <Image src="/coinbase-logo.svg" alt="" width={24} height={24} className="w-6 h-6 sm:w-7 sm:h-7" />
         <span className="tracking-tight hidden xs:inline truncate">
           Coinbase Marketplace
         </span>
@@ -43,7 +43,7 @@ export default function Header({
       className="flex items-center gap-2 sm:gap-2.5 text-xs sm:text-sm font-semibold text-[#0a0b0d] hover:opacity-80 transition-opacity"
       aria-label="Coinbase Marketplace home"
     >
-      <CoinbaseLogo />
+      <Image src="/coinbase-logo.svg" alt="" width={24} height={24} className="w-6 h-6" />
       <span className="tracking-tight hidden xs:inline">
         Coinbase Marketplace
       </span>
@@ -90,20 +90,7 @@ export default function Header({
                   <span className="xs:hidden">Disconnect</span>
                 </button>
               </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setShowConnectModal(true)}
-                disabled={isLoading}
-                className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-[#0052ff] border border-[#0052ff]/20 rounded-xl hover:bg-[#0052ff]/5 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-                aria-label="Connect your crypto wallet"
-              >
-                <span className="hidden xs:inline">
-                  {isLoading ? 'Connecting...' : 'Connect Wallet'}
-                </span>
-                <span className="xs:hidden">{isLoading ? '...' : 'Connect'}</span>
-              </button>
-            )}
+            ) : null}
           </>
         )}
         </div>
