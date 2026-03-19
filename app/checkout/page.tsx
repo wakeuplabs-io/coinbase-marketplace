@@ -2,13 +2,13 @@
 
 import { useState, Suspense } from "react";
 import { useRouter } from "next/navigation";
-import Script from "next/script";
 
 import { useCart } from "@/app/context/CartContext";
 import Header from "@/app/components/Header";
 import ProductIcon from "@/app/components/ProductIcon";
 import {
   CreditCardLogos,
+  CryptoWalletIcons,
   PayPalLogo,
   StablecoinLogos,
 } from "@/app/components/PaymentIcons";
@@ -19,7 +19,7 @@ import { useCheckoutForm } from "@/app/checkout/hooks/useCheckoutForm";
 import { useCheckoutFunds } from "@/app/checkout/hooks/useCheckoutFunds";
 import { useCheckoutOrder } from "@/app/checkout/hooks/useCheckoutOrder";
 
-import PaymentModal from "./paymentModal";
+import PaymentEmbed from "./paymentEmbed";
 import FaucetRequest from "@/app/components/FaucetRequest";
 
 function PlaceholderThumbnail({
@@ -45,12 +45,12 @@ function PlaceholderThumbnail({
   );
 }
 
-type PaymentMethod = "credit" | "paypal" | "shop" | "crypto";
+type PaymentMethod = "credit" | "paypal" | "stablecoin";
 
 function CheckoutContent() {
   const { items, subtotal } = useCart();
   const router = useRouter();
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("crypto");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("stablecoin");
   const [showFaucetModal, setShowFaucetModal] = useState(false);
   const [showConnectModal, setShowConnectModal] = useState(false);
 
@@ -69,13 +69,6 @@ function CheckoutContent() {
 
   return (
     <div className="flex flex-col bg-white">
-      {/* Load Coinbase payment script on checkout mount so it's ready when user clicks Pay */}
-      <Script
-        src="https://payments.coinbase.com/sandbox/payments/components/v1/payment-link.mjs"
-        strategy="afterInteractive"
-        type="module"
-        crossOrigin="anonymous"
-      />
       <div className="fixed top-0 left-0 right-0 z-50 w-full bg-white">
         <Header
           showBackButton
@@ -177,20 +170,35 @@ function CheckoutContent() {
                       </div>
                     </label>
 
-                    {/* Crypto: USDC / USDT - Active */}
+                    {/* Stablecoin: USDC/USDT when row not selected; wallet logos when selected (same selector) */}
                     <label className="flex items-start gap-3 p-4 bg-[#f9fafb] border border-[#e2e4e9] rounded-xl cursor-pointer hover:bg-white transition-colors">
                       <input
                         type="radio"
                         name="payment"
-                        value="crypto"
-                        checked={paymentMethod === "crypto"}
-                        onChange={() => setPaymentMethod("crypto")}
+                        value="stablecoin"
+                        checked={paymentMethod === "stablecoin"}
+                        onChange={() => setPaymentMethod("stablecoin")}
                         className="mt-1 w-4 h-4 text-[#0052ff] border-gray-300 focus:ring-[#0052ff] focus:ring-2"
                       />
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-1">
                           <span className="text-sm font-medium text-[#0a0b0d]">Stablecoin</span>
-                          <StablecoinLogos onClick={() => setShowConnectModal(true)} />
+                          {paymentMethod === "stablecoin" ? (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setShowConnectModal(true);
+                              }}
+                              className="flex items-center gap-2 rounded-lg p-1 -m-1 hover:bg-[#0052ff]/5 transition-colors"
+                              aria-label="Connect wallet"
+                            >
+                              <CryptoWalletIcons />
+                            </button>
+                          ) : (
+                            <StablecoinLogos />
+                          )}
                         </div>
                       </div>
                     </label>
@@ -229,7 +237,13 @@ function CheckoutContent() {
                 {/* Pay Now Button */}
                 <button
                   type="submit"
-                  disabled={isLoading || isPreparingPayment || insufficientFunds || paymentMethod === "credit" || paymentMethod === "paypal"}
+                  disabled={
+                    isLoading ||
+                    isPreparingPayment ||
+                    insufficientFunds ||
+                    paymentMethod === "credit" ||
+                    paymentMethod === "paypal"
+                  }
                   className="w-full mb-3 px-5 py-3 bg-[#0a0b0d] text-white rounded-xl text-sm font-semibold hover:bg-[#1a1b1d] transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                 >
                   {(isLoading || isPreparingPayment) ? "Processing..." : "Pay now"}
@@ -285,12 +299,11 @@ function CheckoutContent() {
         </div>
       </main>
 
-      {/* Payment Modal */}
-      <PaymentModal
-        isOpen={!!payment || isPreparingPayment}
+      <PaymentEmbed
+        active={!!payment || isPreparingPayment}
         payment={payment}
         isLoading={isPreparingPayment || isLoading}
-        onClose={handleCloseModal}
+        onCancel={handleCloseModal}
         onPaymentSuccess={handlePaymentSuccess}
       />
 

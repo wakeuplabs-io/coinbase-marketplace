@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Coinbase Payment</title>
+    <style>
+      :root {
+        color-scheme: light;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        background: #ffffff;
+      }
+      .payment-root {
+        width: 100%;
+        height: 100%;
+      }
+      coinbase-payment {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+    <script
+      src="https://payments.coinbase.com/sandbox/payments/components/v1/payment-link.mjs"
+      type="module"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <div class="payment-root">
+      <coinbase-payment id="payment-link" layout="default"></coinbase-payment>
+    </div>
+    <script>
+      const component = document.getElementById("payment-link");
+      /** Set if parent posts payment before Coinbase's module defines the custom element */
+      let pendingPayment = null;
+      /** Ignore `rendered` until we've called render({ payment }) — early renders are often blank */
+      let waitingForPaintAfterPayment = false;
+      let paintNotifiedForCurrentPayment = false;
+      let renderedFallbackTimerId = null;
+
+      const sendToParent = (type, payload) => {
+        window.parent.postMessage(
+          {
+            source: "coinbase-payment-iframe",
+            type,
+            payload,
+          },
+          window.location.origin
+        );
+      };
+
+      function notifyPaintReady(detail) {
+        if (paintNotifiedForCurrentPayment) return;
+        paintNotifiedForCurrentPayment = true;
+        waitingForPaintAfterPayment = false;
+        if (renderedFallbackTimerId != null) {
+          clearTimeout(renderedFallbackTimerId);
+          renderedFallbackTimerId = null;
+        }
+        sendToParent("rendered", detail || {});
+      }
+
+      function applyPayment(payment) {
+        if (!component || !payment) return;
+        if (typeof component.render === "function") {
+          waitingForPaintAfterPayment = true;
+          paintNotifiedForCurrentPayment = false;
+          if (renderedFallbackTimerId != null) {
+            clearTimeout(renderedFallbackTimerId);
+            renderedFallbackTimerId = null;
+          }
+          component.render({ payment });
+          pendingPayment = null;
+          // Some builds rarely omit `rendered` after render(); unstick the parent overlay.
+          renderedFallbackTimerId = setTimeout(() => {
+            renderedFallbackTimerId = null;
+            if (!paintNotifiedForCurrentPayment) {
+              notifyPaintReady({});
+            }
+          }, 600);
+        } else {
+          pendingPayment = payment;
+        }
+      }
+
+      if (component) {
+        component.addEventListener("rendered", (event) => {
+          if (!waitingForPaintAfterPayment) return;
+          notifyPaintReady(event?.detail || {});
+        });
+        component.addEventListener("completed", (event) => {
+          sendToParent("completed", event?.detail || {});
+        });
+        component.addEventListener("cancelled", () => {
+          sendToParent("cancelled", {});
+        });
+        component.addEventListener("paymentError", (event) => {
+          sendToParent("paymentError", event?.detail || {});
+        });
+        // Inside an iframe the component cannot redirect; parent must navigate (CDP docs).
+        component.addEventListener("deeplink", (event) => {
+          sendToParent("deeplink", event?.detail || {});
+        });
+      }
+
+      window.addEventListener("message", (event) => {
+        if (event.origin !== window.location.origin) return;
+
+        const data = event.data || {};
+        if (data.type !== "coinbase:set-payment") return;
+
+        applyPayment(data.payload);
+      });
+
+      // Do NOT send "ready" until the web component is defined — the module script is async.
+      customElements.whenDefined("coinbase-payment").then(() => {
+        if (pendingPayment) {
+          applyPayment(pendingPayment);
+        }
+        sendToParent("ready", {});
+      });
+    </script>
+  </body>
+</html>
