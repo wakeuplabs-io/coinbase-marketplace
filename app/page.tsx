@@ -22,8 +22,13 @@ export default function Home() {
   const [showFaucetModal, setShowFaucetModal] = useState(false);
   const [showConnectModal, setShowConnectModal] = useState(false);
   const router = useRouter();
-  const { isConnected, usdcBalance, isLoadingBalance } = useWallet();
+  const { isConnected, usdcBalance, isLoadingBalance, disconnect } = useWallet();
   const previousConnectedRef = useRef(false);
+
+  // Landing page: clear persisted wallet session so the user starts fresh (no-op if not connected)
+  useEffect(() => {
+    disconnect();
+  }, [disconnect]);
 
   // Check balance after connection and open faucet if balance is zero
   useEffect(() => {

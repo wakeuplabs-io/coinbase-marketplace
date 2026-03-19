@@ -3,7 +3,7 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
-import type { CompletedEventDetail } from "@/app/checkout/paymentModal";
+import type { CompletedEventDetail } from "@/app/checkout/paymentEmbed";
 import { useCart } from "@/app/context/CartContext";
 import { usePayment } from "@/app/hooks/usePayment";
 import { useCheckoutFunds } from "@/app/checkout/hooks/useCheckoutFunds";

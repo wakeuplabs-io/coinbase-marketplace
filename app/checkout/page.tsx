@@ -2,7 +2,6 @@
 
 import { useState, Suspense } from "react";
 import { useRouter } from "next/navigation";
-import Script from "next/script";
 
 import { useCart } from "@/app/context/CartContext";
 import Header from "@/app/components/Header";
@@ -19,7 +18,7 @@ import { useCheckoutForm } from "@/app/checkout/hooks/useCheckoutForm";
 import { useCheckoutFunds } from "@/app/checkout/hooks/useCheckoutFunds";
 import { useCheckoutOrder } from "@/app/checkout/hooks/useCheckoutOrder";
 
-import PaymentModal from "./paymentModal";
+import PaymentEmbed from "./paymentEmbed";
 import FaucetRequest from "@/app/components/FaucetRequest";
 
 function PlaceholderThumbnail({
@@ -69,13 +68,6 @@ function CheckoutContent() {
 
   return (
     <div className="flex flex-col bg-white">
-      {/* Load Coinbase payment script on checkout mount so it's ready when user clicks Pay */}
-      <Script
-        src="https://payments.coinbase.com/sandbox/payments/components/v1/payment-link.mjs"
-        strategy="afterInteractive"
-        type="module"
-        crossOrigin="anonymous"
-      />
       <div className="fixed top-0 left-0 right-0 z-50 w-full bg-white">
         <Header
           showBackButton
@@ -285,12 +277,11 @@ function CheckoutContent() {
         </div>
       </main>
 
-      {/* Payment Modal */}
-      <PaymentModal
-        isOpen={!!payment || isPreparingPayment}
+      <PaymentEmbed
+        active={!!payment || isPreparingPayment}
         payment={payment}
         isLoading={isPreparingPayment || isLoading}
-        onClose={handleCloseModal}
+        onCancel={handleCloseModal}
         onPaymentSuccess={handlePaymentSuccess}
       />
 
