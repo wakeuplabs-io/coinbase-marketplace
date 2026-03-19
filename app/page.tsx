@@ -7,7 +7,6 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import AppleLogo from "./components/icons/AppleLogo";
 import PlayStoreLogo from "./components/icons/PlayStoreLogo";
-import ArrowRight from "./components/icons/ArrowRight";
 import FaucetRequest from "./components/FaucetRequest";
 import WalletConnectModal from "./components/WalletConnectModal";
 import { useConnect, useConnectors } from "wagmi";
@@ -30,30 +29,38 @@ export default function Home() {
     disconnect();
   }, [disconnect]);
 
-  // Check balance after connection and open faucet if balance is zero
+  // After connect + balance loaded: faucet if zero USDC, marketplace only if funded
   useEffect(() => {
-    // Only check when connection state changes from false to true
     if (isConnected && !previousConnectedRef.current && !isLoadingBalance) {
       previousConnectedRef.current = true;
-      if (usdcBalance === 0) {
-        // Use requestAnimationFrame to avoid cascading renders
-        requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (usdcBalance > 0) {
+          router.push(config.marketplaceUrl);
+        } else {
           setShowFaucetModal(true);
-        });
-      }
+        }
+      });
     }
-    // Reset when disconnected
     if (!isConnected) {
       previousConnectedRef.current = false;
     }
-  }, [isConnected, usdcBalance, isLoadingBalance]);
+  }, [isConnected, usdcBalance, isLoadingBalance, router]);
 
   const { connect } = useConnect();
   const connectors = useConnectors();
 
+  const goToMarketplaceIfFunded = () => {
+    if (isLoadingBalance) return;
+    if (usdcBalance > 0) {
+      router.push(config.marketplaceUrl);
+    } else {
+      setShowFaucetModal(true);
+    }
+  };
+
   const handleConnectBaseWallet = () => {
     if (isConnected) {
-      router.push(config.marketplaceUrl);
+      goToMarketplaceIfFunded();
       return;
     }
     const baseConnector = connectors.find((c) => isBaseConnector(c.id));
@@ -61,10 +68,7 @@ export default function Home() {
       connect(
         { connector: baseConnector },
         {
-          onSuccess: () => {
-            setShowConnectModal(false);
-            router.push(config.marketplaceUrl);
-          },
+          onSuccess: () => setShowConnectModal(false),
         }
       );
     } else {
@@ -77,7 +81,7 @@ export default function Home() {
     if (!isConnected) {
       setShowConnectModal(true);
     } else {
-      router.push(config.marketplaceUrl);
+      goToMarketplaceIfFunded();
     }
   };
 
@@ -304,10 +308,7 @@ export default function Home() {
       <WalletConnectModal
         isOpen={showConnectModal}
         onClose={() => setShowConnectModal(false)}
-        onConnectSuccess={() => {
-          setShowConnectModal(false);
-          router.push(config.marketplaceUrl);
-        }}
+        onConnectSuccess={() => setShowConnectModal(false)}
         excludeBaseWallet
       />
 
