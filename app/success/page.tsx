@@ -37,11 +37,11 @@ function SuccessContent() {
         </section>
 
         {/* Action buttons */}
-        <section className="space-y-3 mb-10">
+        <section className="space-y-3 mb-10 flex flex-col items-center">
           <button
             type="button"
             onClick={() => router.push("/marketplace")}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#0052ff] text-white rounded-xl font-semibold hover:bg-[#0042cc] transition-colors"
+            className="flex items-center justify-center gap-2 px-4 py-2 bg-white text-[#374151] rounded-xl font-medium text-sm hover:bg-[#f9fafb] transition-colors border border-[#e5e7eb] w-full max-w-[220px]"
           >
             Try again
           </button>
