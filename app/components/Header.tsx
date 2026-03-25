@@ -12,6 +12,7 @@ interface HeaderProps {
   onBackClick?: () => void;
   showConnectWallet?: boolean;
   showDemoBadge?: boolean;
+  onDisconnect?: () => void;
 }
 
 export default function Header({
@@ -19,6 +20,7 @@ export default function Header({
   onBackClick,
   showConnectWallet = true,
   showDemoBadge = false,
+  onDisconnect,
 }: HeaderProps) {
   const [showConnectModal, setShowConnectModal] = useState(false);
   const { address, isConnected, usdcBalance, isLoadingBalance, disconnect } = useWallet();
@@ -82,7 +84,10 @@ export default function Header({
                 </div>
                 <button
                   type="button"
-                  onClick={disconnect}
+                  onClick={() => {
+                    disconnect();
+                    onDisconnect?.();
+                  }}
                   className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-[#0052ff] border border-[#0052ff]/20 rounded-xl hover:bg-[#0052ff]/5 transition-all hover:scale-[1.02] active:scale-[0.98]"
                   aria-label="Disconnect wallet"
                 >
