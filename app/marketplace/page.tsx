@@ -20,6 +20,7 @@ export default function MarketplacePage() {
             <Header
               showBackButton
               onBackClick={() => router.push("/")}
+              onDisconnect={() => router.push("/")}
             />
           </div>
 

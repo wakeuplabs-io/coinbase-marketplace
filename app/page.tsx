@@ -23,13 +23,14 @@ export default function Home() {
   const router = useRouter();
   const { isConnected, usdcBalance, isLoadingBalance, disconnect } = useWallet();
   const previousConnectedRef = useRef(false);
+  const shouldRequestTestFunds = isConnected && !isLoadingBalance && usdcBalance === 0;
 
   // Landing page: clear persisted wallet session so the user starts fresh (no-op if not connected)
   useEffect(() => {
     disconnect();
   }, [disconnect]);
 
-  // After connect + balance loaded: faucet if zero USDC, marketplace only if funded
+  // After connect + balance loaded: faucet if zero USDC, marketplace otherwise
   useEffect(() => {
     if (isConnected && !previousConnectedRef.current && !isLoadingBalance) {
       previousConnectedRef.current = true;
@@ -43,6 +44,14 @@ export default function Home() {
     }
     if (!isConnected) {
       previousConnectedRef.current = false;
+    }
+  }, [isConnected, usdcBalance, isLoadingBalance, router]);
+
+  // If the user receives funds (e.g. faucet tx completes after closing the modal),
+  // move them forward automatically.
+  useEffect(() => {
+    if (isConnected && !isLoadingBalance && usdcBalance > 0) {
+      router.push(config.marketplaceUrl);
     }
   }, [isConnected, usdcBalance, isLoadingBalance, router]);
 
@@ -60,6 +69,10 @@ export default function Home() {
 
   const handleConnectBaseWallet = () => {
     if (isConnected) {
+      if (shouldRequestTestFunds) {
+        setShowFaucetModal(true);
+        return;
+      }
       goToMarketplaceIfFunded();
       return;
     }
@@ -81,6 +94,10 @@ export default function Home() {
     if (!isConnected) {
       setShowConnectModal(true);
     } else {
+      if (shouldRequestTestFunds) {
+        setShowFaucetModal(true);
+        return;
+      }
       goToMarketplaceIfFunded();
     }
   };
@@ -126,23 +143,27 @@ export default function Home() {
               <div className="flex flex-col gap-3 items-start">
                 <span className="text-xs font-semibold text-[#0052ff] uppercase tracking-wide">Step 2</span>
                 <p className="text-sm text-[#4a5568]">
-                  Do not have test funds yet? Connect your wallet to receive your test funds.
+                    {shouldRequestTestFunds
+                      ? "Request test funds to continue."
+                      : "Do not have test funds yet? Connect your wallet to receive your test funds."}
                 </p>
-                <div className="flex flex-wrap items-center gap-3">
+                  <div className="flex flex-wrap items-center gap-3">
                   <button
                     onClick={handleConnectBaseWallet}
                     className="group inline-flex items-center gap-2 px-5 py-2.5 bg-[#0052ff] text-white font-medium rounded-xl hover:bg-[#0042cc] transition-all hover:scale-[1.02] active:scale-[0.98]"
-                    aria-label="Connect your Base wallet"
+                      aria-label={shouldRequestTestFunds ? "Request Test Funds" : "Connect your Base wallet"}
                   >
-                    Connect your Base wallet
+                      {shouldRequestTestFunds ? "Request Test Funds" : "Connect your Base wallet"}
                   </button>
-                  <button
-                    onClick={handleConnectOtherWallet}
-                    className="group inline-flex items-center gap-2 px-5 py-2.5 text-[#0052ff] font-medium border border-[#0052ff]/20 rounded-xl hover:bg-[#0052ff]/5 transition-all hover:scale-[1.02] active:scale-[0.98]"
-                    aria-label="Connect another wallet"
-                  >
-                    Connect another wallet
-                  </button>
+                    {!shouldRequestTestFunds && (
+                      <button
+                        onClick={handleConnectOtherWallet}
+                        className="group inline-flex items-center gap-2 px-5 py-2.5 text-[#0052ff] font-medium border border-[#0052ff]/20 rounded-xl hover:bg-[#0052ff]/5 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                        aria-label="Connect another wallet"
+                      >
+                        Connect another wallet
+                      </button>
+                    )}
                 </div>
               </div>
             </div>
@@ -213,23 +234,25 @@ export default function Home() {
                     Step 2
                   </span>
                   <p className="text-xs text-[#4a5568] max-w-[260px]">
-                    Connect your wallet to receive your test funds.
+                    {shouldRequestTestFunds ? "Request test funds to continue." : "Connect your wallet to receive your test funds."}
                   </p>
                   <div className="flex flex-row flex-wrap items-center justify-center gap-2.5 w-full sm:w-auto">
                     <button
                       onClick={handleConnectBaseWallet}
                       className="inline-flex items-center justify-center px-5 sm:px-6 py-2.5 text-[13px] sm:text-sm bg-[#0052ff] text-white font-medium rounded-full hover:bg-[#0042cc] transition-all active:scale-[0.95] touch-manipulation"
-                      aria-label="Connect your Base wallet"
+                      aria-label={shouldRequestTestFunds ? "Request Test Funds" : "Connect your Base wallet"}
                     >
-                      Connect your Base wallet
+                      {shouldRequestTestFunds ? "Request Test Funds" : "Connect your Base wallet"}
                     </button>
-                    <button
-                      onClick={handleConnectOtherWallet}
-                      className="inline-flex items-center justify-center px-5 sm:px-6 py-2.5 text-[13px] sm:text-sm text-[#0052ff] font-medium border border-[#0052ff]/20 rounded-full hover:bg-[#0052ff]/5 transition-all active:scale-[0.95] touch-manipulation"
-                      aria-label="Connect another wallet"
-                    >
-                      Connect another wallet
-                    </button>
+                    {!shouldRequestTestFunds && (
+                      <button
+                        onClick={handleConnectOtherWallet}
+                        className="inline-flex items-center justify-center px-5 sm:px-6 py-2.5 text-[13px] sm:text-sm text-[#0052ff] font-medium border border-[#0052ff]/20 rounded-full hover:bg-[#0052ff]/5 transition-all active:scale-[0.95] touch-manipulation"
+                        aria-label="Connect another wallet"
+                      >
+                        Connect another wallet
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
