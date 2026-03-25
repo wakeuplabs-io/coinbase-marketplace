@@ -23,6 +23,9 @@ export default function Home() {
   const router = useRouter();
   const { isConnected, usdcBalance, isLoadingBalance, disconnect } = useWallet();
   const previousConnectedRef = useRef(false);
+  const cameFromDisconnectRef = useRef(false);
+  const suppressAutoRedirectRef = useRef(false);
+  const redirectGuardReadyRef = useRef(false);
   const shouldRequestTestFunds = isConnected && !isLoadingBalance && usdcBalance === 0;
 
   // Landing page: clear persisted wallet session so the user starts fresh (no-op if not connected)
@@ -30,8 +33,30 @@ export default function Home() {
     disconnect();
   }, [disconnect]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const disconnected = params.get("disconnected") === "1";
+    if (disconnected) {
+      cameFromDisconnectRef.current = true;
+      suppressAutoRedirectRef.current = true;
+    }
+    redirectGuardReadyRef.current = true;
+  }, []);
+
+  // Prevent redirect races immediately after disconnecting from marketplace.
+  useEffect(() => {
+    if (!redirectGuardReadyRef.current) return;
+    if (suppressAutoRedirectRef.current && !isConnected) {
+      suppressAutoRedirectRef.current = false;
+      if (cameFromDisconnectRef.current) {
+        router.replace("/");
+      }
+    }
+  }, [isConnected, router]);
+
   // After connect + balance loaded: faucet if zero USDC, marketplace otherwise
   useEffect(() => {
+    if (!redirectGuardReadyRef.current || suppressAutoRedirectRef.current) return;
     if (isConnected && !previousConnectedRef.current && !isLoadingBalance) {
       previousConnectedRef.current = true;
       requestAnimationFrame(() => {
@@ -50,6 +75,7 @@ export default function Home() {
   // If the user receives funds (e.g. faucet tx completes after closing the modal),
   // move them forward automatically.
   useEffect(() => {
+    if (!redirectGuardReadyRef.current || suppressAutoRedirectRef.current) return;
     if (isConnected && !isLoadingBalance && usdcBalance > 0) {
       router.push(config.marketplaceUrl);
     }
