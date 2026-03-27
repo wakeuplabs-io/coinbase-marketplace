@@ -8,12 +8,12 @@ import Footer from "./components/Footer";
 import AppleLogo from "./components/icons/AppleLogo";
 import PlayStoreLogo from "./components/icons/PlayStoreLogo";
 import FaucetRequest from "./components/FaucetRequest";
-import { useConnect, useConnectors } from "wagmi";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
+import { useConnect, useConnectors } from "wagmi";
 import { useWallet } from "./hooks/useWallet";
 import { config } from "./lib/config";
 
-function isBaseConnector(id: string): boolean {
+function isCoinbaseConnector(id: string): boolean {
   return id === "coinbaseWalletSDK" || id.includes("coinbase");
 }
 
@@ -102,11 +102,11 @@ export default function Home() {
       goToMarketplaceIfFunded();
       return;
     }
-    const baseConnector = connectors.find((c) => isBaseConnector(c.id));
-    if (baseConnector) {
-      connect({ connector: baseConnector });
+    const coinbaseConnector = connectors.find((c) => isCoinbaseConnector(c.id));
+    if (coinbaseConnector) {
+      connect({ connector: coinbaseConnector });
     } else {
-      // Fallback when Base connector is not available.
+      // Fallback when Coinbase connector is not available.
       openConnectModal?.();
     }
   };
