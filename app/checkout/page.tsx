@@ -12,7 +12,7 @@ import {
   PayPalLogo,
   StablecoinLogos,
 } from "@/app/components/PaymentIcons";
-import WalletConnectModal from "@/app/components/WalletConnectModal";
+import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { formatPrice } from "@/app/lib/utils";
 
 import { useCheckoutForm } from "@/app/checkout/hooks/useCheckoutForm";
@@ -52,7 +52,7 @@ function CheckoutContent() {
   const router = useRouter();
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("stablecoin");
   const [showFaucetModal, setShowFaucetModal] = useState(false);
-  const [showConnectModal, setShowConnectModal] = useState(false);
+  const { openConnectModal } = useConnectModal();
 
   const { register, handleSubmit, formState: { errors } } = useCheckoutForm();
   const { insufficientFunds, usdcBalance } = useCheckoutFunds();
@@ -189,7 +189,7 @@ function CheckoutContent() {
                               onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                setShowConnectModal(true);
+                                openConnectModal?.();
                               }}
                               className="flex items-center gap-2 rounded-lg p-1 -m-1 hover:bg-[#0052ff]/5 transition-colors"
                               aria-label="Connect wallet"
@@ -305,13 +305,6 @@ function CheckoutContent() {
         isLoading={isPreparingPayment || isLoading}
         onCancel={handleCloseModal}
         onPaymentSuccess={handlePaymentSuccess}
-      />
-
-      {/* Wallet Connect Modal (from Stablecoin logos) */}
-      <WalletConnectModal
-        isOpen={showConnectModal}
-        onClose={() => setShowConnectModal(false)}
-        onConnectSuccess={() => setShowConnectModal(false)}
       />
 
       {/* Faucet Modal */}

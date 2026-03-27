@@ -8,8 +8,8 @@ import Footer from "./components/Footer";
 import AppleLogo from "./components/icons/AppleLogo";
 import PlayStoreLogo from "./components/icons/PlayStoreLogo";
 import FaucetRequest from "./components/FaucetRequest";
-import WalletConnectModal from "./components/WalletConnectModal";
 import { useConnect, useConnectors } from "wagmi";
+import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useWallet } from "./hooks/useWallet";
 import { config } from "./lib/config";
 
@@ -19,9 +19,9 @@ function isBaseConnector(id: string): boolean {
 
 export default function Home() {
   const [showFaucetModal, setShowFaucetModal] = useState(false);
-  const [showConnectModal, setShowConnectModal] = useState(false);
   const router = useRouter();
   const { isConnected, usdcBalance, isLoadingBalance, disconnect } = useWallet();
+  const { openConnectModal } = useConnectModal();
   const previousConnectedRef = useRef(false);
   const cameFromDisconnectRef = useRef(false);
   const suppressAutoRedirectRef = useRef(false);
@@ -104,28 +104,15 @@ export default function Home() {
     }
     const baseConnector = connectors.find((c) => isBaseConnector(c.id));
     if (baseConnector) {
-      connect(
-        { connector: baseConnector },
-        {
-          onSuccess: () => setShowConnectModal(false),
-        }
-      );
+      connect({ connector: baseConnector });
     } else {
-      // Fallback: open modal if Base connector not available
-      setShowConnectModal(true);
+      // Fallback when Base connector is not available.
+      openConnectModal?.();
     }
   };
 
   const handleConnectOtherWallet = () => {
-    if (!isConnected) {
-      setShowConnectModal(true);
-    } else {
-      if (shouldRequestTestFunds) {
-        setShowFaucetModal(true);
-        return;
-      }
-      goToMarketplaceIfFunded();
-    }
+    openConnectModal?.();
   };
 
   const handleFaucetSuccess = () => {
@@ -352,14 +339,6 @@ export default function Home() {
       </main>
 
       <Footer />
-
-      {/* Wallet Connect Modal */}
-      <WalletConnectModal
-        isOpen={showConnectModal}
-        onClose={() => setShowConnectModal(false)}
-        onConnectSuccess={() => setShowConnectModal(false)}
-        excludeBaseWallet
-      />
 
       {/* Faucet Modal */}
       {showFaucetModal && (
