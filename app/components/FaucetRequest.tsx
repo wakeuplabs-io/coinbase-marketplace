@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from 'react';
+import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { useFaucet } from '../hooks/useFaucet';
 import { useWallet } from '../hooks/useWallet';
 
@@ -11,7 +12,8 @@ interface FaucetRequestProps {
 }
 
 export default function FaucetRequest({ onSuccess, embedded }: FaucetRequestProps) {
-  const { address, isConnected, isLoading: isWalletLoading, error: walletError, connect } = useWallet();
+  const { address, isConnected, isLoading: isWalletLoading, error: walletError } = useWallet();
+  const { openConnectModal } = useConnectModal();
   const { requestFaucet, isLoading: isFaucetLoading, error: faucetError, reset } = useFaucet();
   const [success, setSuccess] = useState<{ transactionHash: string; explorerUrl: string } | null>(null);
   
@@ -108,7 +110,7 @@ export default function FaucetRequest({ onSuccess, embedded }: FaucetRequestProp
                 Connect your wallet to request test tokens. We&apos;ll use your connected wallet address automatically.
               </p>
               <button
-                onClick={connect}
+                onClick={() => openConnectModal?.()}
                 disabled={isLoading}
                 className="w-full px-4 py-2.5 bg-[#0052ff] text-white rounded-xl font-medium hover:bg-[#0042cc] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#0052ff]"
               >

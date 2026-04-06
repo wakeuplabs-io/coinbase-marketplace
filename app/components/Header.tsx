@@ -1,11 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 import BackArrowIcon from "./icons/BackArrowIcon";
 import Link from "next/link";
 import { useWallet } from "../hooks/useWallet";
-import WalletConnectModal from "./WalletConnectModal";
 
 interface HeaderProps {
   showBackButton?: boolean;
@@ -22,7 +20,6 @@ export default function Header({
   showDemoBadge = false,
   onDisconnect,
 }: HeaderProps) {
-  const [showConnectModal, setShowConnectModal] = useState(false);
   const { address, isConnected, usdcBalance, isLoadingBalance, disconnect } = useWallet();
   const LogoLink = showBackButton ? (
     <button
@@ -100,11 +97,6 @@ export default function Header({
         )}
         </div>
       </nav>
-
-      <WalletConnectModal
-        isOpen={showConnectModal}
-        onClose={() => setShowConnectModal(false)}
-      />
     </header>
   );
 }

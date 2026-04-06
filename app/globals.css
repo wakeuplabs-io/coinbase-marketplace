@@ -43,6 +43,7 @@ html {
   padding: 0;
   /* Prevent mobile browser from adding top gap (iOS/Safari) */
   -webkit-text-size-adjust: 100%;
+  color-scheme: light;
 }
 
 body {

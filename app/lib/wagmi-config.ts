@@ -1,43 +1,45 @@
 import { createConfig, http } from 'wagmi';
 import { baseSepolia } from 'wagmi/chains';
-import { coinbaseWallet, injected, metaMask, walletConnect } from 'wagmi/connectors';
+import { coinbaseWallet } from 'wagmi/connectors';
+import { connectorsForWallets } from '@rainbow-me/rainbowkit';
+import {
+  injectedWallet,
+  metaMaskWallet,
+  rabbyWallet,
+  rainbowWallet,
+} from '@rainbow-me/rainbowkit/wallets';
 
-const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID;
-const disableWalletConnect =
-  process.env.NEXT_PUBLIC_DISABLE_WALLETCONNECT === 'true';
-if (!projectId && typeof window !== 'undefined' && !disableWalletConnect) {
-  console.warn(
-    '[wagmi] NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID is missing. Get one at https://cloud.walletconnect.com'
-  );
-}
-
-const connectors = [
-  coinbaseWallet({
-    appName: 'Coinbase Marketplace',
-    preference: 'all',
-  }),
-  ...(projectId && !disableWalletConnect
-    ? [
-        walletConnect({
-          projectId,
-          metadata: {
-            name: 'Coinbase Marketplace',
-            description: 'Base Marketplace',
-            url: typeof window !== 'undefined' ? window.location.origin : '',
-            icons: ['https://www.coinbase.com/favicon.ico'],
-          },
-          showQrModal: true,
-        }),
-      ]
-    : []),
-  metaMask(),
-  injected(),
-];
+const walletConnectProjectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID;
+const appName = 'Coinbase Marketplace';
+const rainbowConnectors = connectorsForWallets(
+  [
+    {
+      groupName: 'Recommended',
+      wallets: [metaMaskWallet, rainbowWallet, rabbyWallet],
+    },
+    {
+      groupName: 'More',
+      wallets: [injectedWallet],
+    },
+  ],
+  {
+    appName,
+    projectId: walletConnectProjectId ?? '',
+  },
+);
 
 export const wagmiConfig = createConfig({
   chains: [baseSepolia],
-  connectors,
+  connectors: [
+    coinbaseWallet({
+      appName,
+      preference: { options: 'all' },
+      version: '4',
+    }),
+    ...rainbowConnectors,
+  ],
   transports: {
     [baseSepolia.id]: http(),
   },
+  ssr: true,
 });
