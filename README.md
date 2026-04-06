@@ -1,9 +1,3 @@
-# Coinbase Marketplace
-
-This document is a ready-to-copy README draft focused on complete onboarding, environment variables, and deployment clarity.
-
----
-
 ## Coinbase Marketplace
 
 Demo app built with Next.js that integrates Coinbase Payments APIs for checkout flows (crypto + fiat-like UX), plus wallet connection and order notification support.
