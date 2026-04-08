@@ -2,11 +2,21 @@ import { NextResponse } from 'next/server';
 import { getEnv } from '../config';
 
 export async function GET() {
+  const isProduction = process.env.NODE_ENV === 'production';
+
   try {
     // Try to get environment variables
     const env = getEnv();
-    
-    // Return health status with variable info (without exposing secrets)
+
+    // In production, keep response minimal to avoid leaking operational metadata.
+    if (isProduction) {
+      return NextResponse.json({
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+      }, { status: 200 });
+    }
+
+    // In non-production, return extra diagnostics for troubleshooting.
     return NextResponse.json({
       status: 'healthy',
       timestamp: new Date().toISOString(),
@@ -16,32 +26,39 @@ export async function GET() {
         hasApiKeySecret: !!env.COINBASE_API_KEY_SECRET,
         hasReceiver: !!env.COINBASE_PAYMENTS_RECEIVER,
         hasRedirectUrl: !!env.COINBASE_PAYMENTS_BASE_REDIRECT_URL,
-        receiverPreview: env.COINBASE_PAYMENTS_RECEIVER 
+        receiverPreview: env.COINBASE_PAYMENTS_RECEIVER
           ? `${env.COINBASE_PAYMENTS_RECEIVER.substring(0, 6)}...${env.COINBASE_PAYMENTS_RECEIVER.substring(38)}`
           : 'missing',
         redirectUrl: env.COINBASE_PAYMENTS_BASE_REDIRECT_URL,
-        apiKeyIdPreview: env.COINBASE_API_KEY_ID 
+        apiKeyIdPreview: env.COINBASE_API_KEY_ID
           ? `${env.COINBASE_API_KEY_ID.substring(0, 4)}...`
           : 'missing',
       },
     }, { status: 200 });
   } catch (error) {
+    if (isProduction) {
+      return NextResponse.json({
+        status: 'unhealthy',
+        timestamp: new Date().toISOString(),
+      }, { status: 500 });
+    }
+
     // If getEnv() fails, return error details
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    
+
     // Log all environment variables that start with COINBASE_ for debugging
     const coinbaseEnvVars = Object.keys(process.env)
       .filter(key => key.startsWith('COINBASE_'))
       .reduce((acc, key) => {
         const value = process.env[key];
-        acc[key] = value 
-          ? (key.includes('SECRET') || key.includes('KEY') 
-              ? `${value.substring(0, 4)}...` 
+        acc[key] = value
+          ? (key.includes('SECRET') || key.includes('KEY')
+              ? `${value.substring(0, 4)}...`
               : value)
           : 'undefined';
         return acc;
       }, {} as Record<string, string>);
-    
+
     return NextResponse.json({
       status: 'unhealthy',
       timestamp: new Date().toISOString(),
