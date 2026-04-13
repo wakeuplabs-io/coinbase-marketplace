@@ -1,6 +1,6 @@
 import { createConfig, http } from 'wagmi';
 import { baseSepolia } from 'wagmi/chains';
-import { coinbaseWallet } from 'wagmi/connectors';
+import { coinbaseWallet, injected } from 'wagmi/connectors';
 import { connectorsForWallets } from '@rainbow-me/rainbowkit';
 import {
   injectedWallet,
@@ -11,22 +11,27 @@ import {
 
 const walletConnectProjectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID;
 const appName = 'Coinbase Marketplace';
-const rainbowConnectors = connectorsForWallets(
-  [
-    {
-      groupName: 'Recommended',
-      wallets: [metaMaskWallet, rainbowWallet, rabbyWallet],
-    },
-    {
-      groupName: 'More',
-      wallets: [injectedWallet],
-    },
-  ],
-  {
-    appName,
-    projectId: walletConnectProjectId ?? '',
-  },
-);
+
+// RainbowKit throws during module init if projectId is empty (SSR/prerender, e.g. Amplify
+// before env vars are set). WalletConnect-backed wallets need a real ID from cloud.walletconnect.com.
+const rainbowConnectors = walletConnectProjectId
+  ? connectorsForWallets(
+      [
+        {
+          groupName: 'Recommended',
+          wallets: [metaMaskWallet, rainbowWallet, rabbyWallet],
+        },
+        {
+          groupName: 'More',
+          wallets: [injectedWallet],
+        },
+      ],
+      {
+        appName,
+        projectId: walletConnectProjectId,
+      },
+    )
+  : [];
 
 export const wagmiConfig = createConfig({
   chains: [baseSepolia],
@@ -36,7 +41,7 @@ export const wagmiConfig = createConfig({
       preference: { options: 'all' },
       version: '4',
     }),
-    ...rainbowConnectors,
+    ...(walletConnectProjectId ? rainbowConnectors : [injected()]),
   ],
   transports: {
     [baseSepolia.id]: http(),
