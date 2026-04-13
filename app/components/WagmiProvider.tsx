@@ -13,7 +13,11 @@ export function WagmiProviderWrapper({ children }: { children: React.ReactNode }
   return (
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider modalSize="compact" theme={lightTheme()}>
+        <RainbowKitProvider
+          modalSize="compact"
+          theme={lightTheme()}
+          showRecentTransactions={false}
+        >
           {children}
         </RainbowKitProvider>
       </QueryClientProvider>

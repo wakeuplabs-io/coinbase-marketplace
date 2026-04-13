@@ -156,7 +156,7 @@ export default function PaymentEmbed({
       />
 
       <div
-        className="relative z-10 w-full max-w-[680px] max-h-[90vh] overflow-hidden rounded-2xl bg-white shadow-2xl animate-fade-in-up"
+        className="relative z-10 box-border w-full max-w-[min(550px,calc(100vw-2rem))] sm:w-[550px] h-[min(455px,calc(100vh-2rem))] sm:h-[455px] overflow-hidden rounded-2xl bg-white shadow-2xl animate-fade-in-up"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -164,7 +164,7 @@ export default function PaymentEmbed({
         aria-label="Payment"
       >
         {preparingOnly ? (
-          <div className="flex h-[min(80vh,640px)] w-full flex-col items-center justify-center gap-3 px-6 py-5">
+          <div className="flex h-full min-h-[200px] w-full flex-col items-center justify-center gap-3 px-6 py-5">
             <div
               className="w-8 h-8 border-2 border-[#0052ff] border-t-transparent rounded-full animate-spin"
               aria-hidden
@@ -174,7 +174,7 @@ export default function PaymentEmbed({
             </p>
           </div>
         ) : (
-          <div className="relative h-[min(80vh,640px)] w-full">
+          <div className="relative h-full min-h-0 w-full">
             {showPreparingState && (
               <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-[#f8fafc]">
                 <div

@@ -1,13 +1,21 @@
 "use client";
 
+import { useEffect } from "react";
 import ProductCarousel from "../components/ProductCarousel";
 import CartSection from "../components/CartSection";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { products } from "../data/products";
 import { useRouter } from "next/navigation";
+import { useWallet } from "../hooks/useWallet";
+
 export default function MarketplacePage() {
   const router = useRouter();
+  const { refetchUsdcBalance } = useWallet();
+
+  useEffect(() => {
+    void refetchUsdcBalance();
+  }, [refetchUsdcBalance]);
 
   return (
     <div className="flex flex-col animated-gradient-bg h-screen overflow-hidden">
@@ -19,7 +27,8 @@ export default function MarketplacePage() {
           <div className="marketplace-topbar fixed left-0 right-0 z-50 w-full bg-white/80 backdrop-blur-sm pt-[env(safe-area-inset-top)]">
             <Header
               showBackButton
-              onBackClick={() => router.push("/")}
+              disconnectOnBack
+              onBackClick={() => router.replace("/?disconnected=1")}
               onDisconnect={() => router.replace("/?disconnected=1")}
             />
           </div>

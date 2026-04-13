@@ -2,8 +2,16 @@
 
 import { useState } from 'react';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
+import { createPublicClient, http } from 'viem';
+import { baseSepolia } from 'viem/chains';
+import { waitForTransactionReceipt } from 'viem/actions';
 import { useFaucet } from '../hooks/useFaucet';
 import { useWallet } from '../hooks/useWallet';
+
+const baseSepoliaClient = createPublicClient({
+  chain: baseSepolia,
+  transport: http(),
+});
 
 interface FaucetRequestProps {
   onSuccess?: () => void;
@@ -12,12 +20,19 @@ interface FaucetRequestProps {
 }
 
 export default function FaucetRequest({ onSuccess, embedded }: FaucetRequestProps) {
-  const { address, isConnected, isLoading: isWalletLoading, error: walletError } = useWallet();
+  const {
+    address,
+    isConnected,
+    isLoading: isWalletLoading,
+    error: walletError,
+    refetchUsdcBalance,
+  } = useWallet();
   const { openConnectModal } = useConnectModal();
   const { requestFaucet, isLoading: isFaucetLoading, error: faucetError, reset } = useFaucet();
   const [success, setSuccess] = useState<{ transactionHash: string; explorerUrl: string } | null>(null);
-  
-  const isLoading = isWalletLoading || isFaucetLoading;
+  const [isConfirmingOnChain, setIsConfirmingOnChain] = useState(false);
+
+  const isLoading = isWalletLoading || isFaucetLoading || isConfirmingOnChain;
   const error = walletError || faucetError;
 
   const handleRequestFaucet = async () => {
@@ -33,6 +48,28 @@ export default function FaucetRequest({ onSuccess, embedded }: FaucetRequestProp
         address: address,
         token: 'usdc',
       });
+
+      setIsConfirmingOnChain(true);
+      try {
+        await waitForTransactionReceipt(baseSepoliaClient, {
+          hash: result.transactionHash as `0x${string}`,
+          timeout: 180_000,
+        });
+      } catch (waitErr) {
+        console.warn(
+          '[FaucetRequest] Transaction receipt wait failed or timed out; balance may still update shortly.',
+          waitErr
+        );
+      }
+
+      await refetchUsdcBalance();
+      setTimeout(() => {
+        void refetchUsdcBalance();
+      }, 2_000);
+      setTimeout(() => {
+        void refetchUsdcBalance();
+      }, 6_000);
+
       setSuccess({
         transactionHash: result.transactionHash,
         explorerUrl: result.explorerUrl,
@@ -40,6 +77,8 @@ export default function FaucetRequest({ onSuccess, embedded }: FaucetRequestProp
       onSuccess?.();
     } catch (err) {
       console.error('Faucet request failed:', err);
+    } finally {
+      setIsConfirmingOnChain(false);
     }
   };
 
@@ -158,7 +197,11 @@ export default function FaucetRequest({ onSuccess, embedded }: FaucetRequestProp
               disabled={isLoading || !address}
               className="w-full px-4 py-2.5 bg-[#0052ff] text-white rounded-xl font-medium hover:bg-[#0042cc] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#0052ff]"
             >
-              {isLoading ? 'Requesting...' : 'Request USDC'}
+              {isConfirmingOnChain
+                ? 'Confirming on chain...'
+                : isLoading
+                  ? 'Requesting...'
+                  : 'Request USDC'}
             </button>
           </div>
         )}

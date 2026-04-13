@@ -8,6 +8,8 @@ import { useWallet } from "../hooks/useWallet";
 interface HeaderProps {
   showBackButton?: boolean;
   onBackClick?: () => void;
+  /** When true, back/logo triggers disconnect before `onBackClick` (e.g. marketplace → home). */
+  disconnectOnBack?: boolean;
   showConnectWallet?: boolean;
   showDemoBadge?: boolean;
   onDisconnect?: () => void;
@@ -16,14 +18,21 @@ interface HeaderProps {
 export default function Header({
   showBackButton = false,
   onBackClick,
+  disconnectOnBack = false,
   showConnectWallet = true,
   showDemoBadge = false,
   onDisconnect,
 }: HeaderProps) {
   const { address, isConnected, usdcBalance, isLoadingBalance, disconnect } = useWallet();
+  const handleBackClick = () => {
+    if (disconnectOnBack) {
+      disconnect();
+    }
+    onBackClick?.();
+  };
   const LogoLink = showBackButton ? (
     <button
-      onClick={onBackClick}
+      onClick={handleBackClick}
       className="flex items-center gap-1.5 sm:gap-2.5 text-xs sm:text-sm font-semibold text-[#0a0b0d] hover:opacity-80 transition-opacity min-w-0"
       aria-label="Back to home"
     >

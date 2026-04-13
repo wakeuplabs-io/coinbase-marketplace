@@ -14,14 +14,17 @@ import { useWallet } from "./hooks/useWallet";
 import { config } from "./lib/config";
 
 function isCoinbaseConnector(id: string): boolean {
-  return id === "coinbaseWalletSDK" || id.includes("coinbase");
+  return id === "coinbaseWalletSDK" || id.toLowerCase().includes("coinbase");
 }
 
 export default function Home() {
   const [showFaucetModal, setShowFaucetModal] = useState(false);
   const router = useRouter();
-  const { isConnected, usdcBalance, isLoadingBalance, disconnect } = useWallet();
+  const { isConnected, usdcBalance, isLoadingBalance, disconnect, refetchUsdcBalance } =
+    useWallet();
   const { openConnectModal } = useConnectModal();
+  const { connect } = useConnect();
+  const connectors = useConnectors();
   const previousConnectedRef = useRef(false);
   const cameFromDisconnectRef = useRef(false);
   const suppressAutoRedirectRef = useRef(false);
@@ -81,9 +84,6 @@ export default function Home() {
     }
   }, [isConnected, usdcBalance, isLoadingBalance, router]);
 
-  const { connect } = useConnect();
-  const connectors = useConnectors();
-
   const goToMarketplaceIfFunded = () => {
     if (isLoadingBalance) return;
     if (usdcBalance > 0) {
@@ -105,10 +105,9 @@ export default function Home() {
     const coinbaseConnector = connectors.find((c) => isCoinbaseConnector(c.id));
     if (coinbaseConnector) {
       connect({ connector: coinbaseConnector });
-    } else {
-      // Fallback when Coinbase connector is not available.
-      openConnectModal?.();
+      return;
     }
+    openConnectModal?.();
   };
 
   const handleConnectOtherWallet = () => {
@@ -116,10 +115,11 @@ export default function Home() {
   };
 
   const handleFaucetSuccess = () => {
-    // Close modal and redirect to marketplace after faucet success
+    // Balance was refreshed in FaucetRequest after on-chain confirmation; refetch again before navigation.
     setShowFaucetModal(false);
-    // Small delay to show success message before redirect
+    void refetchUsdcBalance();
     setTimeout(() => {
+      void refetchUsdcBalance();
       router.push(config.marketplaceUrl);
     }, 1500);
   };
