@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { useAccount, useConnect, useDisconnect, useReadContract } from 'wagmi';
 import { formatUnits } from 'viem';
 import { erc20Abi } from 'viem';
@@ -14,6 +15,7 @@ export interface UseWalletReturn {
   isLoadingBalance: boolean;
   connect: () => void;
   disconnect: () => void;
+  refetchUsdcBalance: () => Promise<void>;
 }
 
 export function useWallet(): UseWalletReturn {
@@ -22,13 +24,19 @@ export function useWallet(): UseWalletReturn {
   const { disconnect } = useDisconnect();
 
   // Get USDC balance
-  const { data: usdcBalance, isLoading: isLoadingUsdc } = useReadContract({
+  const {
+    data: usdcBalance,
+    isLoading: isLoadingUsdc,
+    refetch: refetchUsdcBalance,
+  } = useReadContract({
     address: USDC_ADDRESS,
     abi: erc20Abi,
     functionName: 'balanceOf',
     args: address ? [address] : undefined,
     query: {
       enabled: !!address,
+      // Faucet / transfers: avoid serving a stale cached balance right after refetch.
+      staleTime: 0,
     },
   });
 
@@ -44,6 +52,10 @@ export function useWallet(): UseWalletReturn {
     ? parseFloat(formatUnits(usdcBalance, 6))
     : 0;
 
+  const refetchUsdcBalanceStable = useCallback(async () => {
+    await refetchUsdcBalance();
+  }, [refetchUsdcBalance]);
+
   return {
     address: address || null,
     isConnected,
@@ -53,5 +65,6 @@ export function useWallet(): UseWalletReturn {
     isLoadingBalance: isLoadingUsdc,
     connect: handleConnect,
     disconnect,
+    refetchUsdcBalance: refetchUsdcBalanceStable,
   };
 }

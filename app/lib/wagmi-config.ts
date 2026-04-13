@@ -3,46 +3,82 @@ import { baseSepolia } from 'wagmi/chains';
 import { coinbaseWallet, injected } from 'wagmi/connectors';
 import { connectorsForWallets } from '@rainbow-me/rainbowkit';
 import {
+  coinbaseWallet as coinbaseWalletRK,
   injectedWallet,
   metaMaskWallet,
   rabbyWallet,
   rainbowWallet,
+  walletConnectWallet,
 } from '@rainbow-me/rainbowkit/wallets';
 
-const walletConnectProjectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID;
 const appName = 'Coinbase Marketplace';
 
-// RainbowKit throws during module init if projectId is empty (SSR/prerender, e.g. Amplify
-// before env vars are set). WalletConnect-backed wallets need a real ID from cloud.walletconnect.com.
-const rainbowConnectors = walletConnectProjectId
-  ? connectorsForWallets(
-      [
+/** README uses NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID; legacy alias kept for older deploys. */
+const walletConnectProjectId =
+  process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID?.trim() ||
+  process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID?.trim();
+
+/** When true, WalletConnect is not registered — often avoids Chrome’s “Local Network Access” prompt; see docs/chrome-local-network-access.md */
+const disableWalletConnect = process.env.NEXT_PUBLIC_DISABLE_WALLETCONNECT === 'true';
+
+/** Prefer EOA path over `all` to avoid a QR-first Coinbase connection UX in the RainbowKit modal (wagmi: `eoaOnly`). */
+const coinbaseConnectorOptions = {
+  preference: { options: 'eoaOnly' as const },
+  version: '4' as const,
+};
+
+/** RainbowKit expects wallet factories, not pre-instantiated `Wallet` objects. */
+const coinbaseSmartWallet = ((opts: {
+  appName: string;
+  appIcon?: string;
+  projectId: string;
+}) =>
+  coinbaseWalletRK({
+    ...opts,
+    ...coinbaseConnectorOptions,
+  })) as unknown as typeof metaMaskWallet;
+
+const rainbowKitConnectors =
+  walletConnectProjectId && !disableWalletConnect
+    ? connectorsForWallets(
+        [
+          {
+            groupName: 'Recommended',
+            wallets: [
+              coinbaseSmartWallet,
+              metaMaskWallet,
+              rainbowWallet,
+              rabbyWallet,
+            ],
+          },
+          {
+            groupName: 'More',
+            wallets: [walletConnectWallet, injectedWallet],
+          },
+        ],
         {
-          groupName: 'Recommended',
-          wallets: [metaMaskWallet, rainbowWallet, rabbyWallet],
+          appName,
+          projectId: walletConnectProjectId,
         },
-        {
-          groupName: 'More',
-          wallets: [injectedWallet],
-        },
-      ],
-      {
-        appName,
-        projectId: walletConnectProjectId,
-      },
-    )
-  : [];
+      )
+    : [];
+
+// RainbowKit throws if WalletConnect-backed wallets are registered without a real project id.
+// Without a project id (or when disabled), expose Coinbase + browser extension only.
+const fallbackConnectors = [
+  coinbaseWallet({
+    appName,
+    ...coinbaseConnectorOptions,
+  }),
+  injected(),
+];
 
 export const wagmiConfig = createConfig({
   chains: [baseSepolia],
-  connectors: [
-    coinbaseWallet({
-      appName,
-      preference: { options: 'all' },
-      version: '4',
-    }),
-    ...(walletConnectProjectId ? rainbowConnectors : [injected()]),
-  ],
+  connectors:
+    walletConnectProjectId && !disableWalletConnect
+      ? rainbowKitConnectors
+      : fallbackConnectors,
   transports: {
     [baseSepolia.id]: http(),
   },
