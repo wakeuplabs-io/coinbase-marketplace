@@ -13,8 +13,9 @@ import { useConnect, useConnectors } from "wagmi";
 import { useWallet } from "./hooks/useWallet";
 import { config } from "./lib/config";
 
-function isCoinbaseConnector(id: string): boolean {
-  return id === "coinbaseWalletSDK" || id.toLowerCase().includes("coinbase");
+function isBaseAccountConnector(id: string): boolean {
+  const normalizedId = id.toLowerCase();
+  return normalizedId.includes("baseaccount") || normalizedId.includes("base-account");
 }
 
 export default function Home() {
@@ -102,9 +103,9 @@ export default function Home() {
       goToMarketplaceIfFunded();
       return;
     }
-    const coinbaseConnector = connectors.find((c) => isCoinbaseConnector(c.id));
-    if (coinbaseConnector) {
-      connect({ connector: coinbaseConnector });
+    const baseAccountConnector = connectors.find((c) => isBaseAccountConnector(c.id));
+    if (baseAccountConnector) {
+      connect({ connector: baseAccountConnector });
       return;
     }
     openConnectModal?.();
