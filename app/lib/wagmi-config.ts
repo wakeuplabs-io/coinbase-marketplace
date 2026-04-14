@@ -1,9 +1,9 @@
 import { createConfig, http } from 'wagmi';
 import { baseSepolia } from 'wagmi/chains';
-import { coinbaseWallet, injected } from 'wagmi/connectors';
+import { baseAccount as baseAccountConnector, injected } from 'wagmi/connectors';
 import { connectorsForWallets } from '@rainbow-me/rainbowkit';
 import {
-  coinbaseWallet as coinbaseWalletRK,
+  baseAccount as baseAccountWallet,
   injectedWallet,
   metaMaskWallet,
   rabbyWallet,
@@ -21,23 +21,6 @@ const walletConnectProjectId =
 /** When true, WalletConnect is not registered — often avoids Chrome’s “Local Network Access” prompt; see docs/chrome-local-network-access.md */
 const disableWalletConnect = process.env.NEXT_PUBLIC_DISABLE_WALLETCONNECT === 'true';
 
-/** Prefer EOA path over `all` to avoid a QR-first Coinbase connection UX in the RainbowKit modal (wagmi: `eoaOnly`). */
-const coinbaseConnectorOptions = {
-  preference: { options: 'eoaOnly' as const },
-  version: '4' as const,
-};
-
-/** RainbowKit expects wallet factories, not pre-instantiated `Wallet` objects. */
-const coinbaseSmartWallet = ((opts: {
-  appName: string;
-  appIcon?: string;
-  projectId: string;
-}) =>
-  coinbaseWalletRK({
-    ...opts,
-    ...coinbaseConnectorOptions,
-  })) as unknown as typeof metaMaskWallet;
-
 const rainbowKitConnectors =
   walletConnectProjectId && !disableWalletConnect
     ? connectorsForWallets(
@@ -45,7 +28,7 @@ const rainbowKitConnectors =
           {
             groupName: 'Recommended',
             wallets: [
-              coinbaseSmartWallet,
+              baseAccountWallet,
               metaMaskWallet,
               rainbowWallet,
               rabbyWallet,
@@ -64,11 +47,10 @@ const rainbowKitConnectors =
     : [];
 
 // RainbowKit throws if WalletConnect-backed wallets are registered without a real project id.
-// Without a project id (or when disabled), expose Coinbase + browser extension only.
+// Without a project id (or when disabled), expose Base Account + browser extension only.
 const fallbackConnectors = [
-  coinbaseWallet({
+  baseAccountConnector({
     appName,
-    ...coinbaseConnectorOptions,
   }),
   injected(),
 ];
