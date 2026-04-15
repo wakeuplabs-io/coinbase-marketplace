@@ -4,10 +4,11 @@ import { baseAccount as baseAccountConnector, injected } from 'wagmi/connectors'
 import { connectorsForWallets } from '@rainbow-me/rainbowkit';
 import {
   baseAccount as baseAccountWallet,
-  injectedWallet,
   metaMaskWallet,
-  rabbyWallet,
   rainbowWallet,
+  readyWallet,
+  trustWallet,
+  uniswapWallet,
   walletConnectWallet,
 } from '@rainbow-me/rainbowkit/wallets';
 
@@ -26,17 +27,17 @@ const rainbowKitConnectors =
     ? connectorsForWallets(
         [
           {
-            groupName: 'Recommended',
+            groupName: 'Popular',
             wallets: [
               baseAccountWallet,
-              metaMaskWallet,
               rainbowWallet,
-              rabbyWallet,
+              metaMaskWallet,
+              walletConnectWallet,
             ],
           },
           {
             groupName: 'More',
-            wallets: [walletConnectWallet, injectedWallet],
+            wallets: [readyWallet, trustWallet, uniswapWallet],
           },
         ],
         {
