@@ -354,10 +354,24 @@ a[href] {
     -webkit-tap-highlight-color: transparent;
   }
 
-  /* Smooth scroll for mobile navigation */
+  /*
+   * Document scroll: avoid scroll-behavior: smooth on the root for viewports < lg.
+   * On iOS Safari it often makes momentum scrolling feel sticky or laggy; native
+   * scrolling stays on the viewport/body and is not affected by rules above 1023px.
+   *
+   * overflow-x: hidden + overflow-y: visible forces overflow-y to compute to "auto"
+   * (CSS 2.1), creating an extra scrollport that can eat the first touch scroll on
+   * iOS/WebKit. Use clip instead — it clips horizontally without that side effect.
+   */
   html {
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
+    scroll-behavior: auto;
+    overflow-x: clip;
+    overflow-y: visible;
+  }
+
+  body {
+    overflow-x: clip;
+    overflow-y: visible;
   }
 
   /* Remove hover effects on touch devices */
@@ -365,6 +379,17 @@ a[href] {
     .hover\:scale-\[1\.02\]:hover {
       transform: scale(1);
     }
+  }
+
+  /* Landing only: drop infinite hero animations to reduce paint/compositing during scroll */
+  .landing-page .instantly-shimmer {
+    animation: none;
+    background-position: 0% 0;
+  }
+
+  .landing-page .animate-fade-in-up-with-pulse {
+    opacity: 1;
+    animation: fade-in-up 0.45s ease-out forwards;
   }
 }
 
@@ -375,11 +400,6 @@ a[href] {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-  }
-
-  /* Prevent horizontal overflow on small screens */
-  body {
-    overflow-x: hidden;
   }
 
   /* Optimize focus states for mobile */
