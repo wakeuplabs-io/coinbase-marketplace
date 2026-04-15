@@ -42,7 +42,7 @@ App runs at `http://localhost:3000`.
 
 Chrome may ask to **access devices on your local network** during wallet or checkout flows. **No app code can force-hide that dialog**; it comes from the browser when WalletConnect (or similar) runs discovery on the top-level page.
 
-**Default in `.env.example`:** `NEXT_PUBLIC_DISABLE_WALLETCONNECT=true` (recommended for demos — avoids Chrome’s “Local Network Access” prompt; you keep Coinbase + browser-extension connectors only). Set to `false` if you need WalletConnect in RainbowKit. Details: [docs/chrome-local-network-access.md](docs/chrome-local-network-access.md).
+**Current app behavior:** WalletConnect is route-based in code. It is disabled on `/checkout` (Coinbase + browser-extension connectors only) and enabled on other routes when `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` is configured. Details: [docs/chrome-local-network-access.md](docs/chrome-local-network-access.md).
 
 ---
 
@@ -68,7 +68,6 @@ Chrome may ask to **access devices on your local network** during wallet or chec
 | `NEXT_PUBLIC_BASE_APP_IOS_URL` | Public | No | iOS Base app URL | App Store URL |
 | `NEXT_PUBLIC_BASE_APP_ANDROID_URL` | Public | No | Android Base app URL | Play Store URL |
 | `NEXT_PUBLIC_MARKETPLACE_URL` | Public | No | Redirect path/URL for marketplace page | `/marketplace` |
-| `NEXT_PUBLIC_DISABLE_WALLETCONNECT` | Public | No | Disables WalletConnect when `true` (recommended default in `.env.example` to reduce Chrome local-network prompts) | `true` in `.env.example` |
 
 ### Security rules
 
@@ -95,8 +94,7 @@ COINBASE_PAYMENTS_BASE_REDIRECT_URL=https://your-public-url.ngrok.io
 NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
 NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY=your_web3forms_access_key
 
-# Recommended default (see README / docs/chrome-local-network-access.md)
-NEXT_PUBLIC_DISABLE_WALLETCONNECT=true
+# WalletConnect is enabled outside /checkout and disabled on /checkout.
 NEXT_PUBLIC_BASE_APP_URL=https://www.coinbase.com/wallet/downloads
 NEXT_PUBLIC_BASE_APP_IOS_URL=https://apps.apple.com/us/app/base-formerly-coinbase-wallet/id1278383455
 NEXT_PUBLIC_BASE_APP_ANDROID_URL=https://play.google.com/store/apps/details?id=org.toshi
@@ -173,7 +171,8 @@ Ensure these are present and valid:
 
 If you see missing project id warning:
 
-- **Default:** `.env.example` sets `NEXT_PUBLIC_DISABLE_WALLETCONNECT=true` (no WalletConnect). Set `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` and `NEXT_PUBLIC_DISABLE_WALLETCONNECT=false` if you need WC-backed wallets (Chrome may show a local-network permission prompt).
+- Set `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` to enable WalletConnect-backed wallets on non-checkout routes.
+- On `/checkout`, app-level WalletConnect stays disabled by route to avoid initializing WalletConnect in that screen.
 
 ### Checkout notification failing
 
