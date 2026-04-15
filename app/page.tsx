@@ -125,7 +125,7 @@ export default function Home() {
     }, 1500);
   };
   return (
-    <div className="overflow-x-hidden flex flex-col bg-white  min-h-screen">
+    <div className="landing-page overflow-x-clip flex flex-col bg-white min-h-screen">
       {/* Skip to main content for accessibility */}
       <a
         href="#main-content"
@@ -139,11 +139,11 @@ export default function Home() {
       {/* Main Content */}
       <main
         id="main-content"
-        className="flex-1 flex items-start lg:items-center justify-center px-4 sm:px-5 md:px-8 py-6 sm:py-8 lg:py-0"
+        className="flex w-full lg:flex-1 items-start lg:items-center justify-center px-4 sm:px-5 md:px-8 py-4 sm:py-8 lg:py-0"
       >
-        <div className="max-w-5xl w-full flex flex-col lg:grid lg:grid-cols-2 items-stretch lg:items-center gap-6 sm:gap-8 lg:gap-10">
-          {/* Right Column */}
-          <div className="order-2 w-full">
+        <div className="max-w-5xl w-full flex flex-col lg:grid lg:grid-cols-2 items-stretch lg:items-center gap-5 sm:gap-8 lg:gap-10">
+          {/* Hero column: mobile first (format 2), desktop second column (right) */}
+          <div className="order-1 lg:order-2 w-full">
             <h1 className="text-[34px] leading-[1.15] sm:text-4xl lg:text-5xl font-semibold tracking-tight text-[#0a0b0d] lg:leading-tight animate-fade-in-up text-center lg:text-left">
               Pay with Stablecoins. Borderless. 24/7.<span className="instantly-shimmer"> Instant.</span>
             </h1>
@@ -183,8 +183,8 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Left Column */}
-          <div className="order-1 w-full lg:justify-self-end">
+          {/* Card column: mobile second, desktop first column (left) */}
+          <div className="order-2 lg:order-1 w-full lg:justify-self-end">
             {/* Mobile: Prominent download buttons (NO QR) - Enhanced CTA */}
             <div className="lg:hidden w-full">
               <div className="relative bg-linear-to-br from-[#0052ff] via-[#0066ff] to-[#0052ff] rounded-2xl p-[2px] animate-fade-in-up-with-pulse">
