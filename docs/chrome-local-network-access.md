@@ -12,18 +12,19 @@ What already exists in the app (and stays as good hygiene, not a guarantee):
 
 - The Coinbase payment UI loads in a **same-origin iframe** with a **small** `allow` list and a restrictive `sandbox` ([`app/checkout/paymentEmbed.tsx`](../app/checkout/paymentEmbed.tsx) → [`public/coinbase-payment-embed.html`](../public/coinbase-payment-embed.html)).
 
-## How to actually avoid the prompt (most demos)
+## App-level mitigation in this repo
 
 Chrome usually shows this when **WalletConnect** (or similar) runs discovery in the **top-level page**. To avoid registering WalletConnect in the dapp:
 
-1. Use **`NEXT_PUBLIC_DISABLE_WALLETCONNECT=true`** (recommended default in **`.env.example`** in this repo; set on each deployment as needed).
-2. Redeploy. Connectors fall back to **Coinbase Wallet + injected** only (`app/lib/wagmi-config.ts`).
+1. `/checkout`: WalletConnect is disabled by route in app code.
+2. Non-checkout routes: WalletConnect is enabled only when **`NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`** is set.
+3. Without a project id, connectors fall back to **Coinbase Wallet + injected** only (`app/lib/wagmi-config.ts`).
 
-**Trade-off:** You lose RainbowKit’s WalletConnect-backed wallets (e.g. some mobile / QR flows). For a Coinbase/Base-focused demo that is often acceptable.
+**Trade-off:** On checkout, users do not get RainbowKit WalletConnect-backed wallets (e.g. some mobile / QR flows) because the app intentionally keeps that screen on Coinbase + injected connectors.
 
 ## If you need WalletConnect enabled
 
-Expect that **some Chrome versions may still show** the Local Network prompt. Capture Chrome version + steps and treat it as a **browser / third-party limitation** if it persists after trying the env flag above.
+Expect that **some Chrome versions may still show** the Local Network prompt. This can still happen in the **Coinbase payment embed** if its own wallet options trigger local-network discovery, even when app-level WalletConnect is disabled on checkout.
 
 ## References
 
