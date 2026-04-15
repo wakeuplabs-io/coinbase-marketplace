@@ -277,9 +277,6 @@ export default function Home() {
               <div className="qr-card bg-white border border-[#e2e4e9] rounded-2xl p-8 shadow-sm w-[360px] animate-fade-in-up delay-200">
                 <div className="text-left">
                   <span className="text-xs font-semibold text-[#0052ff] uppercase tracking-wide">Step 1 (Optional)</span>
-                  {!isConnected && (
-                    <p className="text-xs text-[#4a5568] mt-0.5">Only if you don&apos;t have a wallet yet.</p>
-                  )}
                   <h2 className="text-xl font-semibold text-[#0a0b0d] mt-1 mb-2">
                     Download Base App
                   </h2>
