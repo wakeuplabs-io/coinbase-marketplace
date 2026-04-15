@@ -183,22 +183,40 @@ function CheckoutContent() {
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-1">
                           <span className="text-sm font-medium text-[#0a0b0d]">Stablecoin</span>
-                          {paymentMethod === "stablecoin" ? (
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                openConnectModal?.();
-                              }}
-                              className="flex items-center gap-2 rounded-lg p-1 -m-1 hover:bg-[#0052ff]/5 transition-colors"
-                              aria-label="Connect wallet"
+                          <span className="inline-grid grid-cols-1 grid-rows-1 place-items-end">
+                            <span
+                              className={`col-start-1 row-start-1 transition-opacity duration-300 ease-in-out ${
+                                paymentMethod === "stablecoin"
+                                  ? "opacity-100 z-10"
+                                  : "opacity-0 z-0 pointer-events-none"
+                              }`}
+                              aria-hidden={paymentMethod !== "stablecoin"}
                             >
-                              <CryptoWalletIcons />
-                            </button>
-                          ) : (
-                            <StablecoinLogos />
-                          )}
+                              <button
+                                type="button"
+                                tabIndex={paymentMethod === "stablecoin" ? 0 : -1}
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  openConnectModal?.();
+                                }}
+                                className="flex items-center gap-2 rounded-lg p-1 -m-1 hover:bg-[#0052ff]/5 transition-colors"
+                                aria-label="Connect wallet"
+                              >
+                                <CryptoWalletIcons />
+                              </button>
+                            </span>
+                            <span
+                              className={`col-start-1 row-start-1 transition-opacity duration-300 ease-in-out ${
+                                paymentMethod === "stablecoin"
+                                  ? "opacity-0 z-0 pointer-events-none"
+                                  : "opacity-100 z-10"
+                              }`}
+                              aria-hidden={paymentMethod === "stablecoin"}
+                            >
+                              <StablecoinLogos />
+                            </span>
+                          </span>
                         </div>
                       </div>
                     </label>
